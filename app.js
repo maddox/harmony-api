@@ -45,8 +45,6 @@ discover.on('offline', function(hub) {
   clearInterval(harmonyActivityUpdateTimer)
   harmonyActivitiesCache = {}
   harmonyIp = null
-
-  discover.start()
 })
 
 // Look for hubs:
