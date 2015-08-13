@@ -1,0 +1,6 @@
+#!/bin/sh
+
+test -z "$NODE_ENV" &&
+  export NODE_ENV='production'
+
+npm run start

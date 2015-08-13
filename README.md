@@ -14,17 +14,23 @@ to control your Harmony Hub, so your control is just a simple HTTP request away.
 * Get current status, including if everything is off, or what the current activity is.
 * Turn everything off.
 * Start a specific activity.
-* query to return a list of available AirPlay endpoints.
-* set an AirPlay endpoint to be active. (This can be multiple, since iTunes
-  supports it).
 
 ## Setup
 
-    npm install
-    npm run start
+    script/bootstrap
+    script/server
 
 Harmony API will run on port `8282` by default. Use the `PORT` environment
 variable to use your own port.
+
+## Logging
+
+Harmony API logs all of its requests. In `production`, it logs to a file at `log/production.log`.
+In `development` mode, it just logs to stdout.
+
+## Development
+
+Launch the app via `npm run start` to run it in the development environment.
 
 ## Docs
 
