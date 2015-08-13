@@ -20,8 +20,8 @@ to control your Harmony Hub, so your control is just a simple HTTP request away.
 
 ## Setup
 
-    npm install
-    npm run start
+    script/bootstrap
+    script/server
 
 Harmony API will run on port `8282` by default. Use the `PORT` environment
 variable to use your own port.
