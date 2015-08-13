@@ -26,6 +26,15 @@ to control your Harmony Hub, so your control is just a simple HTTP request away.
 Harmony API will run on port `8282` by default. Use the `PORT` environment
 variable to use your own port.
 
+## Logging
+
+Harmony API logs all of its requests. In `production`, it logs to a file at `log/production.log`.
+In `development` mode, it just logs to stdout.
+
+## Development
+
+Launch the app via `npm run start` to run it in the development environment.
+
 ## Docs
 
 This is a quick overview of the service. Read [app.js](app.js) if you need more
