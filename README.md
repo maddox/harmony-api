@@ -14,9 +14,6 @@ to control your Harmony Hub, so your control is just a simple HTTP request away.
 * Get current status, including if everything is off, or what the current activity is.
 * Turn everything off.
 * Start a specific activity.
-* query to return a list of available AirPlay endpoints.
-* set an AirPlay endpoint to be active. (This can be multiple, since iTunes
-  supports it).
 
 ## Setup
 
