@@ -1,6 +1,6 @@
 {
   "name": "harmony-api",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A simple server providing a RESTful service for controlling a Harmony Hub.",
   "scripts": {
     "start": "node app.js"
@@ -19,6 +19,6 @@
     "morgan": "^1.6.1",
     "body-parser": "^1.12.4",
     "harmonyhubjs-client": "^1.1.4",
-    "harmonyhubjs-discover": "^1.0.0"
+    "harmonyhubjs-discover": "git@github.com:swissmanu/harmonyhubjs-discover.git"
   }
 }

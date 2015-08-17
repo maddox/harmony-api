@@ -7,7 +7,7 @@ var bodyParser = require('body-parser')
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
 
-var harmonyIp
+var harmonyHubClient
 var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
@@ -28,55 +28,58 @@ if ('development' == env){
 }
 
 // Middleware
-// Check to make sure we have a harmonyIp to connect to
-var hasHarmonyIp = function(req, res, next) {
-  if (harmonyIp) {
+// Check to make sure we have a harmonyHubClient to connect to
+var hasHarmonyHubClient = function(req, res, next) {
+  if (hasHarmonyHubClient) {
     next()
   }else{
     res.status(500).json({message: "Can not connect to hub."})
   }
 }
-app.use(hasHarmonyIp)
+app.use(hasHarmonyHubClient)
 
 
-discover = new harmonyHubDiscover(61991)
+var discover = new harmonyHubDiscover(61991)
 
-discover.on('online', function(hub) {
+discover.on('online', function(hubInfo) {
   // Triggered when a new hub was found
-  console.log('discovered ' + hub.ip)
-  harmonyIp = hub.ip
+  console.log('Hub discovered ' + hubInfo.ip + '.')
 
-  // update the list of activities
-  updateActivities()
-  // then do it on the set interval
-  clearInterval(harmonyActivityUpdateTimer)
-  harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+  if (hubInfo.ip) {
+    console.log('Stopping discovery.')
+    discover.stop()
+
+    harmony(hubInfo.ip).then(function(harmonyClient) {
+      console.log('Harmony client created.')
+
+      harmonyHubClient = harmonyClient
+
+      // update the list of activities
+      updateActivities()
+      // then do it on the set interval
+      clearInterval(harmonyActivityUpdateTimer)
+      harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+    })
+  }
+
 })
 
-discover.on('offline', function(hub) {
-  // Triggered when a hub disappeared
-  console.log('lost ' + hub.ip)
-  clearInterval(harmonyActivityUpdateTimer)
-  harmonyActivitiesCache = {}
-  harmonyIp = null
-})
 
 // Look for hubs:
+console.log('Starting discovery.')
 discover.start()
 
 function updateActivities(){
-  if (!harmonyIp) { return }
+  if (!harmonyHubClient) { return }
+  console.log('Updating activities.')
 
-  harmony(harmonyIp).then(function(harmonyClient) {
-    harmonyClient.getActivities().then(function(activities){
-      foundActivities = {}
-      activities.some(function(activity) {
-        foundActivities[activity.id] = {id: activity.id, label: activity.label, isAVActivity: activity.isAVActivity}
-      })
-
-      harmonyActivitiesCache = foundActivities
-      harmonyClient.end()
+  harmonyHubClient.getActivities().then(function(activities){
+    foundActivities = {}
+    activities.some(function(activity) {
+      foundActivities[activity.id] = {id: activity.id, label: activity.label, isAVActivity: activity.isAVActivity}
     })
+
+    harmonyActivitiesCache = foundActivities
   })
 }
 
@@ -103,30 +106,24 @@ app.get('/activities', function(req, res){
 })
 
 app.get('/status', function(req, res){
-  harmony(harmonyIp).then(function(harmonyClient) {
-    harmonyClient.getCurrentActivity().then(function(activityId){
+  harmonyHubClient.getCurrentActivity().then(function(activityId){
+    data = {off: true}
+
+    activity = harmonyActivitiesCache[activityId]
+
+    if (activityId != -1 && activity) {
+      data = {off: false, current_activity: activity}
+    }else{
       data = {off: true}
+    }
 
-      activity = harmonyActivitiesCache[activityId]
-
-      if (activityId != -1 && activity) {
-        data = {off: false, current_activity: activity}
-      }else{
-        data = {off: true}
-      }
-
-      harmonyClient.end()
-      res.json(data)
-    })
+    res.json(data)
   })
 })
 
 app.put('/off', function(req, res){
-  harmony(harmonyIp).then(function(harmonyClient) {
-    harmonyClient.turnOff().then(function(){
-      harmonyClient.end()
-      res.json({message: "ok"})
-    })
+  harmonyHubClient.turnOff().then(function(){
+    res.json({message: "ok"})
   })
 })
 
@@ -134,9 +131,7 @@ app.post('/start_activity', function(req, res){
   activity = activityByName(req.body.activity_name)
 
   if (activity) {
-    harmony(harmonyIp).then(function(harmonyClient) {
-      harmonyClient.startActivity(activity.id)
-      harmonyClient.end()
+    harmonyHubClient.startActivity(activity.id).then(function(){
       res.json({message: "ok"})
     })
   }else{
