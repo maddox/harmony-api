@@ -62,12 +62,6 @@ discover.on('online', function(hubInfo) {
     })
   }
 
-discover.on('offline', function(hub) {
-  // Triggered when a hub disappeared
-  console.log('lost ' + hub.ip)
-  clearInterval(harmonyActivityUpdateTimer)
-  harmonyActivitiesCache = {}
-  harmonyIp = null
 })
 
 // Look for hubs:
