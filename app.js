@@ -64,7 +64,9 @@ discover.on('online', function(hubInfo) {
 
 })
 
+
 // Look for hubs:
+console.log('Starting discovery.')
 discover.start()
 
 function updateActivities(){
