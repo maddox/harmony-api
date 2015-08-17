@@ -39,7 +39,7 @@ var hasHarmonyHubClient = function(req, res, next) {
 app.use(hasHarmonyHubClient)
 
 
-discover = new harmonyHubDiscover(61991)
+var discover = new harmonyHubDiscover(61991)
 
 discover.on('online', function(hubInfo) {
   // Triggered when a new hub was found
