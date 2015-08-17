@@ -70,7 +70,8 @@ console.log('Starting discovery.')
 discover.start()
 
 function updateActivities(){
-  if (!harmonyIp) { return }
+  if (!harmonyHubClient) { return }
+  console.log('Updating activities.')
 
   harmony(harmonyIp).then(function(harmonyClient) {
     harmonyClient.getActivities().then(function(activities){
