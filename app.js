@@ -7,7 +7,7 @@ var bodyParser = require('body-parser')
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
 
-var harmonyIp
+var harmonyHubClient
 var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
@@ -41,17 +41,26 @@ app.use(hasHarmonyIp)
 
 discover = new harmonyHubDiscover(61991)
 
-discover.on('online', function(hub) {
+discover.on('online', function(hubInfo) {
   // Triggered when a new hub was found
-  console.log('discovered ' + hub.ip)
-  harmonyIp = hub.ip
+  console.log('Hub discovered ' + hubInfo.ip + '.')
 
-  // update the list of activities
-  updateActivities()
-  // then do it on the set interval
-  clearInterval(harmonyActivityUpdateTimer)
-  harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
-})
+  if (hubInfo.ip) {
+    console.log('Stopping discovery.')
+    discover.stop()
+
+    harmony(hubInfo.ip).then(function(harmonyClient) {
+      console.log('Harmony client created.')
+
+      harmonyHubClient = harmonyClient
+
+      // update the list of activities
+      updateActivities()
+      // then do it on the set interval
+      clearInterval(harmonyActivityUpdateTimer)
+      harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+    })
+  }
 
 discover.on('offline', function(hub) {
   // Triggered when a hub disappeared
