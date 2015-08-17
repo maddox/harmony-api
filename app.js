@@ -28,15 +28,15 @@ if ('development' == env){
 }
 
 // Middleware
-// Check to make sure we have a harmonyIp to connect to
-var hasHarmonyIp = function(req, res, next) {
-  if (harmonyIp) {
+// Check to make sure we have a harmonyHubClient to connect to
+var hasHarmonyHubClient = function(req, res, next) {
+  if (hasHarmonyHubClient) {
     next()
   }else{
     res.status(500).json({message: "Can not connect to hub."})
   }
 }
-app.use(hasHarmonyIp)
+app.use(hasHarmonyHubClient)
 
 
 discover = new harmonyHubDiscover(61991)
