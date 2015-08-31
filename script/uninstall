@@ -1,6 +1,6 @@
 #!/bin/sh
 
-forever stop harmony-api
 echo "Uninstalling harmony-api..."
+forever stop harmony-api > /dev/null 2>&1
 launchctl unload ~/Library/LaunchAgents/org.harmony-api.plist
 rm ~/Library/LaunchAgents/org.harmony-api.plist
