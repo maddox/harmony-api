@@ -1,6 +1,10 @@
 #!/bin/sh
 
 test -z "$NODE_ENV" &&
-  export NODE_ENV='production'
+  export NODE_ENV='development'
 
-npm run start
+if [ "$NODE_ENV" = "development" ]; then
+  /usr/local/bin/forever -f config/forever/development.json
+else
+  /usr/local/bin/forever start config/forever/production.json
+fi
