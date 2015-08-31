@@ -1,0 +1,5 @@
+#!/bin/sh
+
+forever stop harmony-api
+launchctl unload ~/Library/LaunchAgents/org.harmony-api.plist
+rm ~/Library/LaunchAgents/org.harmony-api.plist

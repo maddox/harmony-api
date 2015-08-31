@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cp config/org.harmony-api.plist ~/Library/LaunchAgents/org.harmony-api.plist
+launchctl load -w -F ~/Library/LaunchAgents/org.harmony-api.plist
