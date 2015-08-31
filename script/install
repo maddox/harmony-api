@@ -1,4 +1,13 @@
 #!/bin/sh
 
+set -e
+
+APP_PATH=`pwd`
+USER_NAME=`whoami`
+
 cp config/org.harmony-api.plist ~/Library/LaunchAgents/org.harmony-api.plist
+
+sed -i '' -e "s#%USER%#$USER_NAME#g" ~/Library/LaunchAgents/org.harmony-api.plist
+sed -i '' -e "s#%PATH%#$APP_PATH#g" ~/Library/LaunchAgents/org.harmony-api.plist
+
 launchctl load -w -F ~/Library/LaunchAgents/org.harmony-api.plist

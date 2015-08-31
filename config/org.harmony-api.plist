@@ -29,13 +29,13 @@
     </dict>
 
     <key>WorkingDirectory</key>
-    <string>/Users/jmaddox/source/harmony-api</string>
+    <string>%PATH%</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/jmaddox/Library/Logs/harmony-api.log</string>
+    <string>/Users/%USER%/Library/Logs/harmony-api.log</string>
 
     <key>StandardOutPath</key>
-    <string>/Users/jmaddox/Library/Logs/harmony-api.log</string>
+    <string>/Users/%USER%/Library/Logs/harmony-api.log</string>
 
   </dict>
 </plist>
