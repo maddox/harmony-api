@@ -1,0 +1,5 @@
+{
+  "append": true,
+  "watch": true,
+  "script": "app.js"
+}
