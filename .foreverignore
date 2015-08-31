@@ -1,0 +1,7 @@
+config/*
+log/*
+script/*
+.gitignore
+LICENCE
+package.json
+README.md
