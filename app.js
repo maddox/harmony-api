@@ -12,20 +12,11 @@ var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
 
-var env = process.env.NODE_ENV || 'development';
-var logDirectory = __dirname + '/log'
-
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
 
 var logFormat = "'[:date[iso]] - :remote-addr - :method :url :status :response-time ms - :res[content-length]b'"
-if ('development' == env){
-  app.use(morgan(logFormat))
-}else if ('production' == env){
-  fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
-  var accessLogStream = fs.createWriteStream(logDirectory + '/' + env + '.log', {flags: 'a'})
-  app.use(morgan(logFormat, {stream: accessLogStream}))
-}
+app.use(morgan(logFormat))
 
 // Middleware
 // Check to make sure we have a harmonyHubClient to connect to
