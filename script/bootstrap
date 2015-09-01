@@ -14,6 +14,8 @@ then
   exit 1
 fi
 
+mkdir -p log
+
 npm install
 
 echo "Finished setting up harmony-api! run it with script/server or install it with script/install."
