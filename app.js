@@ -94,6 +94,10 @@ function activityByName(activityName){
   return activity
 }
 
+app.get('/_ping', function(req, res){
+  res.send('OK');
+})
+
 app.get('/', function(req, res){
   res.sendfile('index.html');
 })
