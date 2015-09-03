@@ -1,4 +1,5 @@
 var fs = require('fs')
+var path = require('path')
 var util = require('util')
 var express = require('express')
 var morgan = require('morgan')
@@ -14,6 +15,7 @@ var harmonyActivityUpdateTimer
 
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.static(path.join(__dirname, 'public')));
 
 var logFormat = "'[:date[iso]] - :remote-addr - :method :url :status :response-time ms - :res[content-length]b'"
 app.use(morgan(logFormat))
@@ -91,6 +93,10 @@ function activityByName(activityName){
 
   return activity
 }
+
+app.get('/', function(req, res){
+  res.sendfile('index.html');
+})
 
 app.get('/activities', function(req, res){
   res.json({activities: cachedHarmonyActivities()})
