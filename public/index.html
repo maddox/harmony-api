@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Harmony API</title>
+    <style media="screen">
+      body { color: #333333; font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif; margin-top: 25px;}
+      h1 { text-align: center; }
+      a { color: #333333; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .logo { display: block; margin: auto }
+      .content { margin: 20px 25%; }
+      .docs { background-color: #f4f4f4; border-radius: 4px; padding: 10px;}
+      .docs p { padding: 0; margin: 0; line-height: 28px; font-size: 14px; font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace; }
+      .docs .method { background-color: #dbdbdb; padding: 4px; border-radius: 2px; margin-right: 4px;}
+      .docs h2 { margin-bottom: 8px;}
+      .docs h2:first-child { margin-top: 0;}
+      .footer { text-align: center; font-size: 12px; margin: 10px 0 50px 0;}
+    </style>
+  </head>
+  <body>
+    <img class="logo" src="/harmony-icon.png" alt="Harmony" width="256px" />
+    <div class="content">
+      <h1>Harmony API</h1>
+
+      <div class="docs">
+        <h2>Info</h2>
+        <p><span class="method">GET</span> <a href="/status">/status</a></p>
+        <p><span class="method">GET</span> <a href="/activities">/activities</a></p>
+
+        <h2>Control</h2>
+        <p><span class="method">PUT</span> /off</p>
+        <p><span class="method">POST</span> /start_activity?activity_name=Watch%20TV</p>
+      </div>
+
+      <div class="footer">
+        Learn more at <a href="https://github.com/maddox/harmony-api">https://github.com/maddox/harmony-api</a>
+      </div>
+    </div>
+
+  </body>
+</html>
