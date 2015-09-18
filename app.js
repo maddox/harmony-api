@@ -123,9 +123,8 @@ app.get('/status', function(req, res){
 })
 
 app.put('/off', function(req, res){
-  harmonyHubClient.turnOff().then(function(){
-    res.json({message: "ok"})
-  })
+  harmonyHubClient.turnOff().then(function(){})
+  res.json({message: "ok"})
 })
 
 app.post('/start_activity', function(req, res){
