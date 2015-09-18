@@ -132,9 +132,8 @@ app.post('/start_activity', function(req, res){
   activity = activityByName(req.body.activity_name)
 
   if (activity) {
-    harmonyHubClient.startActivity(activity.id).then(function(){
-      res.json({message: "ok"})
-    })
+    harmonyHubClient.startActivity(activity.id).then(function(){})
+    res.json({message: "ok"})
   }else{
     res.status(404).json({message: "Not Found"})
   }
