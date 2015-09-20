@@ -18,4 +18,12 @@ mkdir -p log
 
 npm install
 
+if [ ! -f  config/config.json ]
+then
+  echo
+  echo "==> Creating your config. Please edit config/config.json."
+  echo
+  cp config/config.sample.json config/config.json
+fi
+
 echo "Finished setting up harmony-api! run it with script/server or install it with script/install."

@@ -47,12 +47,26 @@ In `development` mode, it just logs to stdout.
 
 Launch the app via `script/server` to run it in the development environment.
 
-## Docs
+## MQTT
+
+harmony-api can report its state changes to your MQTT broker. Just edit your
+config file in `config/config.json` to add your MQTT host.
+
+harmony-api publishes topics with the namespace of: `harmony-api`.
+
+### Topics
+
+`harmony-api/state`, `$ACTIVITY_NAME` - This is published whenever the activity
+is changed or the hub is turned off via the API. Activity name is parameterized
+and underscored. IE, `watch_tv`.
+
+## API Docs
 
 This is a quick overview of the service. Read [app.js](app.js) if you need more
 info.
 
-:warning: These endpoints may not be stable as this project moves fast towards `1.0.0`.
+:warning: These endpoints may not be stable as this project moves fast towards
+`1.0.0`.
 
 ### Resources
 
@@ -60,8 +74,8 @@ Here's a list of resources that may be returned in a response.
 
 #### Activity Resource
 
-The Activity resource returns all the information you really need for an Activity
-set up in your Harmony Hub.
+The Activity resource returns all the information you really need for an
+Activity set up in your Harmony Hub.
 
 ```json
 {

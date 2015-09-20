@@ -1,9 +1,13 @@
 var fs = require('fs')
 var path = require('path')
 var util = require('util')
+var mqtt = require('mqtt');
 var express = require('express')
 var morgan = require('morgan')
 var bodyParser = require('body-parser')
+var parameterize = require('parameterize');
+
+var config = require('./config/config.json');
 
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
@@ -12,6 +16,9 @@ var harmonyHubClient
 var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
+
+var mqttClient = mqtt.connect(config.mqtt_host);
+var TOPIC_NAMESPACE = "harmony-api"
 
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -94,6 +101,11 @@ function activityByName(activityName){
   return activity
 }
 
+function publish(topic, message, options){
+  topic = TOPIC_NAMESPACE + "/" + topic
+  mqttClient.publish(topic, message, options);
+}
+
 app.get('/_ping', function(req, res){
   res.send('OK');
 })
@@ -123,18 +135,21 @@ app.get('/status', function(req, res){
 })
 
 app.put('/off', function(req, res){
-  harmonyHubClient.turnOff().then(function(){
-    res.json({message: "ok"})
-  })
+  harmonyHubClient.turnOff().then(function(){})
+  publish('state', 'off', {retain: true});
+  res.json({message: "ok"})
 })
 
 app.post('/start_activity', function(req, res){
   activity = activityByName(req.body.activity_name)
 
   if (activity) {
-    harmonyHubClient.startActivity(activity.id).then(function(){
-      res.json({message: "ok"})
-    })
+    harmonyHubClient.startActivity(activity.id).then(function(){})
+
+    state = parameterize(activity.label).replace(/-/g, '_')
+    publish('state', state, {retain: true});
+
+    res.json({message: "ok"})
   }else{
     res.status(404).json({message: "Not Found"})
   }
