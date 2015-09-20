@@ -116,6 +116,12 @@ function cachedHarmonyActivities(){
   })
 }
 
+function currentActivityName(){
+  if (!harmonyHubClient || !harmonyState) { return null}
+
+  return harmonyState.off ? 'off' : harmonyState.current_activity.label
+}
+
 function activityByName(activityName){
   var activity
   cachedHarmonyActivities().some(function(a) {
