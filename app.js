@@ -152,7 +152,7 @@ app.get('/activities', function(req, res){
 })
 
 app.get('/status', function(req, res){
-  res.json(data)
+  res.json(harmonyState)
 })
 
 app.put('/off', function(req, res){
