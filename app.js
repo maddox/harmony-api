@@ -18,6 +18,8 @@ var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
 
 var mqttClient = mqtt.connect(config.mqtt_host);
+var TOPIC_NAMESPACE = "harmony-api"
+
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')));
