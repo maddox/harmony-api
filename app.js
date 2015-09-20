@@ -167,8 +167,10 @@ app.get('/status', function(req, res){
 })
 
 app.put('/off', function(req, res){
-  harmonyHubClient.turnOff().then(function(){})
-  publish('state', 'off', {retain: true});
+  harmonyHubClient.turnOff().then(function(){
+    updateState()
+  })
+
   res.json({message: "ok"})
 })
 
@@ -176,10 +178,9 @@ app.post('/start_activity', function(req, res){
   activity = activityByName(req.body.activity_name)
 
   if (activity) {
-    harmonyHubClient.startActivity(activity.id).then(function(){})
-
-    state = parameterize(activity.label).replace(/-/g, '_')
-    publish('state', state, {retain: true});
+    harmonyHubClient.startActivity(activity.id).then(function(){
+      updateState()
+    })
 
     res.json({message: "ok"})
   }else{
