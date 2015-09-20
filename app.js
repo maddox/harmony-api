@@ -136,6 +136,7 @@ app.get('/status', function(req, res){
 
 app.put('/off', function(req, res){
   harmonyHubClient.turnOff().then(function(){})
+  publish('state', 'off', {retain: true});
   res.json({message: "ok"})
 })
 
@@ -144,6 +145,10 @@ app.post('/start_activity', function(req, res){
 
   if (activity) {
     harmonyHubClient.startActivity(activity.id).then(function(){})
+
+    state = parameterize(activity.label).replace(/-/g, '_')
+    publish('state', state, {retain: true});
+
     res.json({message: "ok"})
   }else{
     res.status(404).json({message: "Not Found"})
