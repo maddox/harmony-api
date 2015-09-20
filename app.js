@@ -4,6 +4,7 @@ var util = require('util')
 var express = require('express')
 var morgan = require('morgan')
 var bodyParser = require('body-parser')
+var config = require('./config/config.json');
 
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
