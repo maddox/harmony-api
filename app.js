@@ -1,9 +1,12 @@
 var fs = require('fs')
 var path = require('path')
 var util = require('util')
+var mqtt = require('mqtt');
 var express = require('express')
 var morgan = require('morgan')
 var bodyParser = require('body-parser')
+var parameterize = require('parameterize');
+
 var config = require('./config/config.json');
 
 var harmonyHubDiscover = require('harmonyhubjs-discover')
