@@ -17,6 +17,10 @@ var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
 
+var harmonyState
+var harmonyStateUpdateInterval = 5*1000 // 5 seconds
+var harmonyStateUpdateTimer
+
 var mqttClient = mqtt.connect(config.mqtt_host);
 var TOPIC_NAMESPACE = "harmony-api"
 
@@ -59,6 +63,10 @@ discover.on('online', function(hubInfo) {
       // then do it on the set interval
       clearInterval(harmonyActivityUpdateTimer)
       harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+
+      // update the list of activities on the set interval
+      clearInterval(harmonyStateUpdateTimer)
+      harmonyStateUpdateTimer = setInterval(function(){ updateState() }, harmonyStateUpdateInterval)
     })
   }
 
@@ -80,6 +88,25 @@ function updateActivities(){
     })
 
     harmonyActivitiesCache = foundActivities
+  })
+}
+
+function updateState(){
+  if (!harmonyHubClient) { return }
+  console.log('Updating state.')
+
+  harmonyHubClient.getCurrentActivity().then(function(activityId){
+    data = {off: true}
+
+    activity = harmonyActivitiesCache[activityId]
+
+    if (activityId != -1 && activity) {
+      data = {off: false, current_activity: activity}
+    }else{
+      data = {off: true}
+    }
+
+    harmonyState = data
   })
 }
 
@@ -119,19 +146,7 @@ app.get('/activities', function(req, res){
 })
 
 app.get('/status', function(req, res){
-  harmonyHubClient.getCurrentActivity().then(function(activityId){
-    data = {off: true}
-
-    activity = harmonyActivitiesCache[activityId]
-
-    if (activityId != -1 && activity) {
-      data = {off: false, current_activity: activity}
-    }else{
-      data = {off: true}
-    }
-
-    res.json(data)
-  })
+  res.json(data)
 })
 
 app.put('/off', function(req, res){
