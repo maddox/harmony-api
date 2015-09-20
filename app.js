@@ -101,6 +101,11 @@ function activityByName(activityName){
   return activity
 }
 
+function publish(topic, message, options){
+  topic = TOPIC_NAMESPACE + "/" + topic
+  mqttClient.publish(topic, message, options);
+}
+
 app.get('/_ping', function(req, res){
   res.send('OK');
 })
