@@ -95,6 +95,8 @@ function updateState(){
   if (!harmonyHubClient) { return }
   console.log('Updating state.')
 
+  var previousActivityName = currentActivityName()
+
   harmonyHubClient.getCurrentActivity().then(function(activityId){
     data = {off: true}
 
@@ -107,6 +109,15 @@ function updateState(){
     }
 
     harmonyState = data
+
+    // publish state if it has changed
+    activityName = currentActivityName()
+
+    if (activityName != previousActivityName) {
+      state = parameterize(activityName).replace(/-/g, '_')
+      publish('state', state, {retain: true});
+    }
+
   })
 }
 
