@@ -17,6 +17,10 @@ var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
 
+var harmonyState
+var harmonyStateUpdateInterval = 5*1000 // 5 seconds
+var harmonyStateUpdateTimer
+
 var mqttClient = mqtt.connect(config.mqtt_host);
 var TOPIC_NAMESPACE = "harmony-api"
 
@@ -59,6 +63,10 @@ discover.on('online', function(hubInfo) {
       // then do it on the set interval
       clearInterval(harmonyActivityUpdateTimer)
       harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+
+      // update the list of activities on the set interval
+      clearInterval(harmonyStateUpdateTimer)
+      harmonyStateUpdateTimer = setInterval(function(){ updateState() }, harmonyStateUpdateInterval)
     })
   }
 
@@ -83,10 +91,46 @@ function updateActivities(){
   })
 }
 
+function updateState(){
+  if (!harmonyHubClient) { return }
+  console.log('Updating state.')
+
+  var previousActivityName = currentActivityName()
+
+  harmonyHubClient.getCurrentActivity().then(function(activityId){
+    data = {off: true}
+
+    activity = harmonyActivitiesCache[activityId]
+
+    if (activityId != -1 && activity) {
+      data = {off: false, current_activity: activity}
+    }else{
+      data = {off: true}
+    }
+
+    harmonyState = data
+
+    // publish state if it has changed
+    activityName = currentActivityName()
+
+    if (activityName != previousActivityName) {
+      state = parameterize(activityName).replace(/-/g, '_')
+      publish('state', state, {retain: true});
+    }
+
+  })
+}
+
 function cachedHarmonyActivities(){
   return Object.keys(harmonyActivitiesCache).map(function(key) {
     return harmonyActivitiesCache[key]
   })
+}
+
+function currentActivityName(){
+  if (!harmonyHubClient || !harmonyState) { return null}
+
+  return harmonyState.off ? 'off' : harmonyState.current_activity.label
 }
 
 function activityByName(activityName){
@@ -119,24 +163,14 @@ app.get('/activities', function(req, res){
 })
 
 app.get('/status', function(req, res){
-  harmonyHubClient.getCurrentActivity().then(function(activityId){
-    data = {off: true}
-
-    activity = harmonyActivitiesCache[activityId]
-
-    if (activityId != -1 && activity) {
-      data = {off: false, current_activity: activity}
-    }else{
-      data = {off: true}
-    }
-
-    res.json(data)
-  })
+  res.json(harmonyState)
 })
 
 app.put('/off', function(req, res){
-  harmonyHubClient.turnOff().then(function(){})
-  publish('state', 'off', {retain: true});
+  harmonyHubClient.turnOff().then(function(){
+    updateState()
+  })
+
   res.json({message: "ok"})
 })
 
@@ -144,10 +178,9 @@ app.post('/start_activity', function(req, res){
   activity = activityByName(req.body.activity_name)
 
   if (activity) {
-    harmonyHubClient.startActivity(activity.id).then(function(){})
-
-    state = parameterize(activity.label).replace(/-/g, '_')
-    publish('state', state, {retain: true});
+    harmonyHubClient.startActivity(activity.id).then(function(){
+      updateState()
+    })
 
     res.json({message: "ok"})
   }else{
