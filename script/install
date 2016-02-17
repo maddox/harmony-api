@@ -7,6 +7,8 @@ echo "Installing harmony-api..."
 APP_PATH=`pwd`
 USER_NAME=`whoami`
 
+mkdir -p ~/Library/LaunchAgents
+
 cp config/org.harmony-api.plist ~/Library/LaunchAgents/org.harmony-api.plist
 
 sed -i '' -e "s#%USER%#$USER_NAME#g" ~/Library/LaunchAgents/org.harmony-api.plist
