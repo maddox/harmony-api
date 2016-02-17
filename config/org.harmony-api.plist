@@ -14,7 +14,7 @@
     </dict>
 
     <key>Program</key>
-    <string>script/server</string>
+    <string>%PATH%/script/server</string>
 
     <key>AbandonProcessGroup</key>
     <false/>
