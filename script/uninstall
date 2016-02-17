@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd "$(dirname "$0")/.."
+
 echo "Uninstalling harmony-api..."
 forever stop harmony-api > /dev/null 2>&1
 launchctl unload ~/Library/LaunchAgents/org.harmony-api.plist

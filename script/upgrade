@@ -1,4 +1,7 @@
 #!/bin/sh
+
+cd "$(dirname "$0")/.."
+
 echo "Updating from GitHub..."
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 git pull origin $BRANCH

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd "$(dirname "$0")/.."
+
 test -z "$NODE_ENV" &&
   export NODE_ENV='development'
 

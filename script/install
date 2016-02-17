@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")/.."
+
 echo "Installing harmony-api..."
 
 APP_PATH=`pwd`
