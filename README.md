@@ -19,8 +19,20 @@ to control your Harmony Hub, so your control is just a simple HTTP request away.
 
     script/bootstrap
 
+## Settings
+
+Harmony API can discover your hub automatically. You can optionally provide an
+IP address for your hub and avoid the discovery process. Add a line to your
+`config.json` file to provide the IP address.
+
+```json
+{
+  "hub_ip": "192.168.1.106"
+}
+```
+
 ## Running It
-Get up and running immediatly with `script/server`.
+Get up and running immediately with `script/server`.
 
 Harmony API will run on port `8282` by default. Use the `PORT` environment
 variable to use your own port.
