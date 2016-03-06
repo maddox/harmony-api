@@ -53,29 +53,34 @@ discover.on('online', function(hubInfo) {
     console.log('Stopping discovery.')
     discover.stop()
 
-    harmony(hubInfo.ip).then(function(harmonyClient) {
-      console.log('Harmony client created.')
-
-      harmonyHubClient = harmonyClient
-
-      // update the list of activities
-      updateActivities()
-      // then do it on the set interval
-      clearInterval(harmonyActivityUpdateTimer)
-      harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
-
-      // update the list of activities on the set interval
-      clearInterval(harmonyStateUpdateTimer)
-      harmonyStateUpdateTimer = setInterval(function(){ updateState() }, harmonyStateUpdateInterval)
-    })
+    harmony(hubInfo.ip).then(startProcessing)
   }
 
 })
 
+if (config['hub_ip']) {
+  // Connect to hub:
+  console.log('Connecting to Harmony hub at ' + config['hub_ip'])
+  harmony(config['hub_ip']).then(startProcessing)
+}else{
+  // Look for hubs:
+  console.log('Starting discovery.')
+  discover.start()
+}
 
-// Look for hubs:
-console.log('Starting discovery.')
-discover.start()
+function startProcessing(harmonyClient){
+  harmonyHubClient = harmonyClient
+
+  // update the list of activities
+  updateActivities()
+  // then do it on the set interval
+  clearInterval(harmonyActivityUpdateTimer)
+  harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+
+  // update the list of activities on the set interval
+  clearInterval(harmonyStateUpdateTimer)
+  harmonyStateUpdateTimer = setInterval(function(){ updateState() }, harmonyStateUpdateInterval)
+}
 
 function updateActivities(){
   if (!harmonyHubClient) { return }
