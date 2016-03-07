@@ -139,7 +139,7 @@ function updateState(){
     if (activityId != -1 && activity) {
       data = {off: false, current_activity: activity}
     }else{
-      data = {off: true}
+      data = {off: true, current_activity: activity}
     }
 
     harmonyState = data
