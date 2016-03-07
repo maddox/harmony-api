@@ -150,6 +150,14 @@ function activityByName(activityName){
   return activity
 }
 
+function off(){
+  if (!harmonyHubClient) { return }
+
+  harmonyHubClient.turnOff().then(function(){
+    updateState()
+  })
+}
+
 function publish(topic, message, options){
   topic = TOPIC_NAMESPACE + "/" + topic
   mqttClient.publish(topic, message, options);
@@ -172,9 +180,7 @@ app.get('/status', function(req, res){
 })
 
 app.put('/off', function(req, res){
-  harmonyHubClient.turnOff().then(function(){
-    updateState()
-  })
+  off()
 
   res.json({message: "ok"})
 })
