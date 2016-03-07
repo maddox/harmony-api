@@ -79,11 +79,11 @@ mqttClient.on('message', function (topic, message) {
   var commandMatches = topic.match(commandPattern);
 
   if (commandMatches) {
-    var action = commandMatches[1]
+    var activitySlug = commandMatches[1]
     var state = message.toString()
 
-    if (action === 'start_activity') {
-      activity = activityByName(state)
+    activity = activityBySlug(activitySlug)
+    if (!activity) { return }
 
       if (activity) {
         startActivity(activity.id)
