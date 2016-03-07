@@ -179,6 +179,18 @@ function activityByName(activityName){
   return activity
 }
 
+function activityBySlug(activitySlug){
+  var activity
+  cachedHarmonyActivities().some(function(a) {
+    if(a.slug === activitySlug) {
+      activity = a
+      return true
+    }
+  })
+
+  return activity
+}
+
 function off(){
   if (!harmonyHubClient) { return }
 
