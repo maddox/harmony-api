@@ -164,7 +164,7 @@ function cachedHarmonyActivities(){
 function currentActivity(){
   if (!harmonyHubClient || !harmonyState) { return null}
 
-  return harmonyState.off ? 'off' : harmonyState.current_activity.label
+  return harmonyState.current_activity
 }
 
 function activityByName(activityName){
