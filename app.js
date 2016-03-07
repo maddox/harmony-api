@@ -71,7 +71,7 @@ if (config['hub_ip']) {
 // mqtt api
 
 mqttClient.on('connect', function () {
-  mqttClient.subscribe('harmony/command/+')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/command/+')
 });
 
 mqttClient.on('message', function (topic, message) {
