@@ -85,13 +85,11 @@ mqttClient.on('message', function (topic, message) {
     activity = activityBySlug(activitySlug)
     if (!activity) { return }
 
-      if (activity) {
-        startActivity(activity.id)
-      }
-    } else if (action === 'off') {
+    if (state === 'on') {
+      startActivity(activity.id)
+    }else if (state === 'off'){
       off()
     }
-
   }
 
 });
@@ -129,7 +127,8 @@ function updateState(){
   if (!harmonyHubClient) { return }
   console.log('Updating state.')
 
-  var previousActivityName = currentActivityName()
+  // save for comparing later after we get the true current state
+  var previousActivity = currentActivity()
 
   harmonyHubClient.getCurrentActivity().then(function(activityId){
     data = {off: true}
@@ -142,14 +141,23 @@ function updateState(){
       data = {off: true, current_activity: activity}
     }
 
+    // cache state for later
     harmonyState = data
 
-    // publish state if it has changed
-    activityName = currentActivityName()
+    if (!previousActivity || (activity.id != previousActivity.id)) {
+      publish('current_activity', activity.slug, {retain: true})
+      publish('state', activity.id == -1 ? 'off' : 'on' , {retain: true})
 
-    if (activityName != previousActivityName) {
-      state = parameterize(activityName).replace(/-/g, '_')
-      publish('state', state, {retain: true});
+      for (var i = 0; i < cachedHarmonyActivities().length; i++) {
+        activities = cachedHarmonyActivities()
+        cachedActivity = activities[i]
+
+        if (activity == cachedActivity) {
+          publish('activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
+        }else{
+          publish('activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
+        }
+      }
     }
 
   })
