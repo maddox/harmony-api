@@ -74,6 +74,29 @@ mqttClient.on('connect', function () {
   mqttClient.subscribe('harmony/command/+')
 });
 
+mqttClient.on('message', function (topic, message) {
+  var commandPattern = new RegExp(/command\/(.*)/);
+  var commandMatches = topic.match(commandPattern);
+
+  if (commandMatches) {
+    var action = commandMatches[1]
+    var state = message.toString()
+
+    if (action === 'start_activity') {
+      activity = activityByName(state)
+
+      if (activity) {
+        startActivity(activity.id)
+      }
+    } else if (action === 'off') {
+      off()
+    }
+
+  }
+
+});
+
+
 function startProcessing(harmonyClient){
   harmonyHubClient = harmonyClient
 
