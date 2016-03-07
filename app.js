@@ -161,7 +161,7 @@ function cachedHarmonyActivities(){
   })
 }
 
-function currentActivityName(){
+function currentActivity(){
   if (!harmonyHubClient || !harmonyState) { return null}
 
   return harmonyState.off ? 'off' : harmonyState.current_activity.label
