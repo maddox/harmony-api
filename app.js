@@ -158,6 +158,14 @@ function off(){
   })
 }
 
+function startActivity(activityId){
+  if (!harmonyHubClient) { return }
+
+  harmonyHubClient.startActivity(activityId).then(function(){
+    updateState()
+  })
+}
+
 function publish(topic, message, options){
   topic = TOPIC_NAMESPACE + "/" + topic
   mqttClient.publish(topic, message, options);
@@ -189,9 +197,7 @@ app.post('/start_activity', function(req, res){
   activity = activityByName(req.body.activity_name)
 
   if (activity) {
-    harmonyHubClient.startActivity(activity.id).then(function(){
-      updateState()
-    })
+    startActivity(activity.id)
 
     res.json({message: "ok"})
   }else{
