@@ -71,11 +71,11 @@ if (config['hub_ip']) {
 // mqtt api
 
 mqttClient.on('connect', function () {
-  mqttClient.subscribe(TOPIC_NAMESPACE + '/command/+')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/activities/+/command')
 });
 
 mqttClient.on('message', function (topic, message) {
-  var commandPattern = new RegExp(/command\/(.*)/);
+  var commandPattern = new RegExp(/activities\/(.*)\/command/);
   var commandMatches = topic.match(commandPattern);
 
   if (commandMatches) {
