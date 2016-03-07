@@ -68,6 +68,12 @@ if (config['hub_ip']) {
   discover.start()
 }
 
+// mqtt api
+
+mqttClient.on('connect', function () {
+  mqttClient.subscribe('harmony/command/+')
+});
+
 function startProcessing(harmonyClient){
   harmonyHubClient = harmonyClient
 
