@@ -116,7 +116,7 @@ function updateActivities(){
   harmonyHubClient.getActivities().then(function(activities){
     foundActivities = {}
     activities.some(function(activity) {
-      foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label).replace(/-/g, '_'), label:activity.label, isAVActivity: activity.isAVActivity}
+      foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
     })
 
     harmonyActivitiesCache = foundActivities
