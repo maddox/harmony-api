@@ -1,6 +1,6 @@
 {
   "name": "harmony-api",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A simple server providing a RESTful service for controlling a Harmony Hub.",
   "scripts": {
     "start": "node app.js"
@@ -18,8 +18,8 @@
     "express": "^4.12.4",
     "morgan": "^1.6.1",
     "body-parser": "^1.12.4",
-    "harmonyhubjs-client": "^1.1.4",
-    "harmonyhubjs-discover": "^1.0.1",
+    "harmonyhubjs-client": "^1.1.8",
+    "harmonyhubjs-discover": "^1.0.2",
     "parameterize": "^0.0.7",
     "mqtt": "^1.4.1"
   }
