@@ -243,7 +243,7 @@ app.put('/off', function(req, res){
 })
 
 app.post('/start_activity', function(req, res){
-  activity = activityByName(req.body.activity_name)
+  activity = activityBySlug(req.body.activity)
 
   if (activity) {
     startActivity(activity.id)
