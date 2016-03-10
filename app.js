@@ -175,18 +175,6 @@ function currentActivity(){
   return harmonyState.current_activity
 }
 
-function activityByName(activityName){
-  var activity
-  cachedHarmonyActivities().some(function(a) {
-    if(a.label === activityName) {
-      activity = a
-      return true
-    }
-  })
-
-  return activity
-}
-
 function activityBySlug(activitySlug){
   var activity
   cachedHarmonyActivities().some(function(a) {
