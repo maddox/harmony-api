@@ -92,6 +92,7 @@ Activity set up in your Harmony Hub.
 ```json
 {
   "id": "15233552",
+  "slug": "watch_tv",
   "label": "Watch TV",
   "isAVActivity": true
 }
@@ -106,6 +107,7 @@ The Status resource returns the current state of your Harmony Hub.
   "off": false,
   "current_activity": {
     "id": "15233552",
+    "slug": "watch_tv",
     "label": "Watch TV",
     "isAVActivity": true
   }
@@ -126,7 +128,7 @@ These are the endpoints you can hit to do things.
   Use these endpoints to control your devices through your Harmony Hub.
 
     PUT /off => NowPlayingResource => {message: "ok"}
-    POST /start_activity?activity_name=Watch%20TV => {message: "ok"}
+    POST /start_activity?activity=watch_tv => {message: "ok"}
 
 ## To Do
 
