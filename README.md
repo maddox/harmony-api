@@ -72,7 +72,7 @@ harmony-api publishes topics with the namespace of: `harmony-api`.
 is changed or the hub is turned off via the API. Activity name is parameterized
 and underscored. IE, `watch_tv`.
 
-## API Docs
+## HTTP API Docs
 
 This is a quick overview of the service. Read [app.js](app.js) if you need more
 info.
