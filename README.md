@@ -59,7 +59,7 @@ In `development` mode, it just logs to stdout.
 
 Launch the app via `script/server` to run it in the development environment.
 
-## MQTT
+## MQTT Docs
 
 harmony-api can report its state changes to your MQTT broker. Just edit your
 config file in `config/config.json` to add your MQTT host.
@@ -68,9 +68,6 @@ harmony-api publishes topics with the namespace of: `harmony-api`.
 
 ### Topics
 
-`harmony-api/state`, `$ACTIVITY_NAME` - This is published whenever the activity
-is changed or the hub is turned off via the API. Activity name is parameterized
-and underscored. IE, `watch_tv`.
 
 ## HTTP API Docs
 
@@ -92,7 +89,7 @@ Activity set up in your Harmony Hub.
 ```json
 {
   "id": "15233552",
-  "slug": "watch_tv",
+  "slug": "watch-tv",
   "label": "Watch TV",
   "isAVActivity": true
 }
@@ -107,7 +104,7 @@ The Status resource returns the current state of your Harmony Hub.
   "off": false,
   "current_activity": {
     "id": "15233552",
-    "slug": "watch_tv",
+    "slug": "watch-tv",
     "label": "Watch TV",
     "isAVActivity": true
   }
@@ -128,7 +125,7 @@ These are the endpoints you can hit to do things.
   Use these endpoints to control your devices through your Harmony Hub.
 
     PUT /off => NowPlayingResource => {message: "ok"}
-    POST /start_activity?activity=watch_tv => {message: "ok"}
+    POST /start_activity?activity=watch-tv => {message: "ok"}
 
 ## To Do
 
