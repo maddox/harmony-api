@@ -1,12 +1,15 @@
 # Harmony API!!
 
-Harmony API is a simple REST server allowing you to query/control a local [Harmony
-Home Hub](http://myharmony.com/products/detail/home-hub/). Yes, there are libraries
-that can already do this (this server uses one :wink:).
+Harmony API is a simple server allowing you to query/control a local [Harmony
+Home Hub](http://myharmony.com/products/detail/home-hub/) over HTTP or MQTT.
 
-But not all languages have Harmony Hub clients. Also, some times these clients are
-complicated to add to your other projects. Harmony API gives you a simple REST server
-to control your Harmony Hub, so your control is just a simple HTTP request away.
+With HTTP, you can simply turn your devices on and off and check their status
+with simple HTTP requests from almost any other project.
+
+With MQTT, you can easily monitor the state of your devices as well as switch
+the current activity of your whole hub. This makes it super easy to integrate
+into your existing home automation setup.
+
 
 ## Features
 
@@ -58,20 +61,56 @@ In `development` mode, it just logs to stdout.
 
 Launch the app via `script/server` to run it in the development environment.
 
-## MQTT
+## MQTT Docs
 
 harmony-api can report its state changes to your MQTT broker. Just edit your
 config file in `config/config.json` to add your MQTT host.
 
 harmony-api publishes topics with the namespace of: `harmony-api`.
 
-### Topics
+### State Topics
 
-`harmony-api/state`, `$ACTIVITY_NAME` - This is published whenever the activity
-is changed or the hub is turned off via the API. Activity name is parameterized
-and underscored. IE, `watch_tv`.
+When the state changes on your harmony hub, state topics will be immediately
+broadcasted over your broker. There's quite a few topics that are broadcasted.
 
-## API Docs
+Here's a list:
+
+#### Current State
+
+This topic describes the current power state. Message is `on` or `off`.
+
+`harmony-api/state` `on`
+
+#### Current Activity
+
+This topic describes what the current activity of the hub is. The message is
+the slug of an activity name.
+
+`harmony-api/current_activity` `watch-tv`
+
+#### Activity States
+
+These topics describe the state of each activity that the hub has. The message
+is `on` or `off`. There will a topic for every activity on your hub.
+
+`harmony-api/activities/watch-tv/state` `off`  
+`harmony-api/activities/watch-apple-tv/state` `on`  
+`harmony-api/activities/play-xbox-one/state` `off`  
+
+
+### Command Topics
+
+You can also command harmony-api to change activities by publishing topics.
+harmony-api listens to this topic and will change to the activity when it sees
+it.
+
+Just provide the slug of the activity you want to switch to and `on` as the
+message. Any use of this topic with the message `off` will turn everything off.
+
+`harmony-api/activities/watch-tv/command` `on`  
+
+
+## HTTP API Docs
 
 This is a quick overview of the service. Read [app.js](app.js) if you need more
 info.
@@ -91,6 +130,7 @@ Activity set up in your Harmony Hub.
 ```json
 {
   "id": "15233552",
+  "slug": "watch-tv",
   "label": "Watch TV",
   "isAVActivity": true
 }
@@ -105,6 +145,7 @@ The Status resource returns the current state of your Harmony Hub.
   "off": false,
   "current_activity": {
     "id": "15233552",
+    "slug": "watch-tv",
     "label": "Watch TV",
     "isAVActivity": true
   }
@@ -125,7 +166,7 @@ These are the endpoints you can hit to do things.
   Use these endpoints to control your devices through your Harmony Hub.
 
     PUT /off => NowPlayingResource => {message: "ok"}
-    POST /start_activity?activity_name=Watch%20TV => {message: "ok"}
+    POST /start_activity?activity=watch-tv => {message: "ok"}
 
 ## To Do
 

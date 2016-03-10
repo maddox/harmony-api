@@ -68,6 +68,33 @@ if (config['hub_ip']) {
   discover.start()
 }
 
+// mqtt api
+
+mqttClient.on('connect', function () {
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/activities/+/command')
+});
+
+mqttClient.on('message', function (topic, message) {
+  var commandPattern = new RegExp(/activities\/(.*)\/command/);
+  var commandMatches = topic.match(commandPattern);
+
+  if (commandMatches) {
+    var activitySlug = commandMatches[1]
+    var state = message.toString()
+
+    activity = activityBySlug(activitySlug)
+    if (!activity) { return }
+
+    if (state === 'on') {
+      startActivity(activity.id)
+    }else if (state === 'off'){
+      off()
+    }
+  }
+
+});
+
+
 function startProcessing(harmonyClient){
   harmonyHubClient = harmonyClient
 
@@ -89,7 +116,7 @@ function updateActivities(){
   harmonyHubClient.getActivities().then(function(activities){
     foundActivities = {}
     activities.some(function(activity) {
-      foundActivities[activity.id] = {id: activity.id, label: activity.label, isAVActivity: activity.isAVActivity}
+      foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
     })
 
     harmonyActivitiesCache = foundActivities
@@ -100,7 +127,8 @@ function updateState(){
   if (!harmonyHubClient) { return }
   console.log('Updating state.')
 
-  var previousActivityName = currentActivityName()
+  // save for comparing later after we get the true current state
+  var previousActivity = currentActivity()
 
   harmonyHubClient.getCurrentActivity().then(function(activityId){
     data = {off: true}
@@ -110,17 +138,26 @@ function updateState(){
     if (activityId != -1 && activity) {
       data = {off: false, current_activity: activity}
     }else{
-      data = {off: true}
+      data = {off: true, current_activity: activity}
     }
 
+    // cache state for later
     harmonyState = data
 
-    // publish state if it has changed
-    activityName = currentActivityName()
+    if (!previousActivity || (activity.id != previousActivity.id)) {
+      publish('current_activity', activity.slug, {retain: true})
+      publish('state', activity.id == -1 ? 'off' : 'on' , {retain: true})
 
-    if (activityName != previousActivityName) {
-      state = parameterize(activityName).replace(/-/g, '_')
-      publish('state', state, {retain: true});
+      for (var i = 0; i < cachedHarmonyActivities().length; i++) {
+        activities = cachedHarmonyActivities()
+        cachedActivity = activities[i]
+
+        if (activity == cachedActivity) {
+          publish('activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
+        }else{
+          publish('activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
+        }
+      }
     }
 
   })
@@ -132,22 +169,38 @@ function cachedHarmonyActivities(){
   })
 }
 
-function currentActivityName(){
+function currentActivity(){
   if (!harmonyHubClient || !harmonyState) { return null}
 
-  return harmonyState.off ? 'off' : harmonyState.current_activity.label
+  return harmonyState.current_activity
 }
 
-function activityByName(activityName){
+function activityBySlug(activitySlug){
   var activity
   cachedHarmonyActivities().some(function(a) {
-    if(a.label === activityName) {
+    if(a.slug === activitySlug) {
       activity = a
       return true
     }
   })
 
   return activity
+}
+
+function off(){
+  if (!harmonyHubClient) { return }
+
+  harmonyHubClient.turnOff().then(function(){
+    updateState()
+  })
+}
+
+function startActivity(activityId){
+  if (!harmonyHubClient) { return }
+
+  harmonyHubClient.startActivity(activityId).then(function(){
+    updateState()
+  })
 }
 
 function publish(topic, message, options){
@@ -172,20 +225,16 @@ app.get('/status', function(req, res){
 })
 
 app.put('/off', function(req, res){
-  harmonyHubClient.turnOff().then(function(){
-    updateState()
-  })
+  off()
 
   res.json({message: "ok"})
 })
 
 app.post('/start_activity', function(req, res){
-  activity = activityByName(req.body.activity_name)
+  activity = activityBySlug(req.body.activity)
 
   if (activity) {
-    harmonyHubClient.startActivity(activity.id).then(function(){
-      updateState()
-    })
+    startActivity(activity.id)
 
     res.json({message: "ok"})
   }else{
