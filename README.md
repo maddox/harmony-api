@@ -24,13 +24,12 @@ into your existing home automation setup.
 
 ## Settings
 
-Harmony API can discover your hub automatically. You can optionally provide an
-IP address for your hub and avoid the discovery process. Add a line to your
-`config.json` file to provide the IP address.
+Harmony API discovers your hub automatically. You can optionally add your MQTT
+broker's host to connect to it.
 
 ```json
 {
-  "hub_ip": "192.168.1.106"
+  "mqtt_host": "192.168.1.106"
 }
 ```
 
