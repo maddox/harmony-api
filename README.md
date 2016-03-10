@@ -1,12 +1,15 @@
 # Harmony API!!
 
-Harmony API is a simple REST server allowing you to query/control a local [Harmony
-Home Hub](http://myharmony.com/products/detail/home-hub/). Yes, there are libraries
-that can already do this (this server uses one :wink:).
+Harmony API is a simple server allowing you to query/control a local [Harmony
+Home Hub](http://myharmony.com/products/detail/home-hub/) over HTTP or MQTT.
 
-But not all languages have Harmony Hub clients. Also, some times these clients are
-complicated to add to your other projects. Harmony API gives you a simple REST server
-to control your Harmony Hub, so your control is just a simple HTTP request away.
+With HTTP, you can simply turn your devices on and off and check their status
+with simple HTTP requests from almost any other project.
+
+With MQTT, you can easily monitor the state of your devices as well as switch
+the current activity of your whole hub. This makes it super easy to integrate
+into your existing home automation setup.
+
 
 ## Features
 
