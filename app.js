@@ -58,6 +58,11 @@ discover.on('online', function(hubInfo) {
 
 })
 
+discover.on('offline', function(hub) {
+  // Triggered when a hub disappeared
+  console.log('lost hub at: ' + hub.ip)
+})
+
 if (config['hub_ip']) {
   // Connect to hub:
   console.log('Connecting to Harmony hub at ' + config['hub_ip'])
