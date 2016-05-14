@@ -21,7 +21,11 @@ var harmonyState
 var harmonyStateUpdateInterval = 5*1000 // 5 seconds
 var harmonyStateUpdateTimer
 
-var mqttClient = mqtt.connect(config.mqtt_host);
+if (config.mqtt_username && config.mqtt_password) {
+  var mqttClient = mqtt.connect(config.mqtt_host, {username: config.mqtt_username, password: config.mqtt_password});
+} else {
+  var mqttClient = mqtt.connect(config.mqtt_host);
+}
 var TOPIC_NAMESPACE = "harmony-api"
 
 var app = express()
