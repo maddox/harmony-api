@@ -29,7 +29,7 @@ broker's host to connect to it.
 
 ```json
 {
-  "mqtt_host": "192.168.1.106"
+  "mqtt_host": "192.168.1.106",
   "mqtt_options": {
       "port": 1883,
       "username": "someuser",
