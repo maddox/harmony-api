@@ -30,8 +30,17 @@ broker's host to connect to it.
 ```json
 {
   "mqtt_host": "192.168.1.106"
+  "mqtt_options": {
+      "port": 1883,
+      "username": "someuser",
+      "password": "somepassword",
+      "rejectUnauthorized": false
+  }
 }
 ```
+
+`mqtt_options` is optional, see the [mqtt](https://github.com/mqttjs/MQTT.js#connect) project for
+allowed host and options values.
 
 ## Running It
 Get up and running immediately with `script/server`.
