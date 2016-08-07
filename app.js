@@ -24,6 +24,7 @@ var harmonyStateUpdateTimer
 var mqttClient = config.hasOwnProperty("mqtt_options") ?
     mqtt.connect(config.mqtt_host, config.mqtt_options) :
     mqtt.connect(config.mqtt_host);
+var TOPIC_NAMESPACE = config.topic_namespace || "harmony-api";
 
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
