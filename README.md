@@ -35,7 +35,8 @@ broker's host to connect to it.
       "username": "someuser",
       "password": "somepassword",
       "rejectUnauthorized": false
-  }
+  },
+  "topic_namespace": "home/harmony"
 }
 ```
 
@@ -75,7 +76,8 @@ Launch the app via `script/server` to run it in the development environment.
 harmony-api can report its state changes to your MQTT broker. Just edit your
 config file in `config/config.json` to add your MQTT host.
 
-harmony-api publishes topics with the namespace of: `harmony-api`.
+By default harmony-api publishes topics with the namespace of: `harmony-api`. This can be overriden
+by setting `topic_namespace` in your config file.
 
 ### State Topics
 
