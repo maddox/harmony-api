@@ -62,6 +62,17 @@ mode with logging to standard out.
 
     script/install
 
+### Docker
+Installation with Docker is straightforward. Adjust the following command so that
+`/path/to/your/config` points to the folder where your want to store your config and run it:
+
+    $ docker run --name="harmony-api" -v /path/to/your/config:/usr/src/app/config \
+        -p 8282:8282 -d jawilson/harmony-api
+
+This will launch Harmony API and serve the web interface from port 8282 on your Docker host. Hub
+discovery requires host networking (`--net=host`). However, you can specify your Harmony Hub IP
+address in `config.json` as `hub_ip`.
+
 ## Logging
 
 Harmony API logs all of its requests. In `production`, it logs to a file at `log/logs.log`.
