@@ -10,5 +10,7 @@ RUN npm install
 
 COPY . /usr/src/app
 
+ENV CONFIG_DIR /config
+
 EXPOSE 8282
 CMD [ "npm", "start" ]
