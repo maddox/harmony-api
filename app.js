@@ -7,7 +7,8 @@ var morgan = require('morgan')
 var bodyParser = require('body-parser')
 var parameterize = require('parameterize');
 
-var config = require('./config/config.json');
+var config_dir = process.env.CONFIG_DIR || './config'
+var config = require(config_dir + '/config.json');
 
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
