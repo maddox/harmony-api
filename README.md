@@ -29,9 +29,19 @@ broker's host to connect to it.
 
 ```json
 {
-  "mqtt_host": "192.168.1.106"
+  "mqtt_host": "192.168.1.106",
+  "mqtt_options": {
+      "port": 1883,
+      "username": "someuser",
+      "password": "somepassword",
+      "rejectUnauthorized": false
+  },
+  "topic_namespace": "home/harmony"
 }
 ```
+
+`mqtt_options` is optional, see the [mqtt](https://github.com/mqttjs/MQTT.js#connect) project for
+allowed host and options values.
 
 ## Running It
 Get up and running immediately with `script/server`.
@@ -66,7 +76,8 @@ Launch the app via `script/server` to run it in the development environment.
 harmony-api can report its state changes to your MQTT broker. Just edit your
 config file in `config/config.json` to add your MQTT host.
 
-harmony-api publishes topics with the namespace of: `harmony-api`.
+By default harmony-api publishes topics with the namespace of: `harmony-api`. This can be overriden
+by setting `topic_namespace` in your config file.
 
 ### State Topics
 
