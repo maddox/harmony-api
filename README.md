@@ -67,7 +67,7 @@ Installation with Docker is straightforward. Adjust the following command so tha
 `/path/to/your/config` points to the folder where your want to store your config and run it:
 
     $ docker run --name="harmony-api" -v /path/to/your/config:/config \
-        -p 8282:8282 -d jawilson/harmony-api
+        -p 8282:8282 -d jonmaddox/harmony-api
 
 This will launch Harmony API and serve the web interface from port 8282 on your Docker host. Hub
 discovery requires host networking (`--net=host`). However, you can specify your Harmony Hub IP
