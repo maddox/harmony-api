@@ -5,7 +5,7 @@ var mqtt = require('mqtt');
 var express = require('express')
 var morgan = require('morgan')
 var bodyParser = require('body-parser')
-var parameterize = require('parameterize');
+var parameterize = require('parameterize')
 
 var config_dir = process.env.CONFIG_DIR || './config'
 var config = require(config_dir + '/config.json');
