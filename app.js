@@ -18,7 +18,7 @@ var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimers = {}
 
-var harmonyState
+var harmonyHubStates = {}
 var harmonyStateUpdateInterval = 5*1000 // 5 seconds
 var harmonyStateUpdateTimers = {}
 
@@ -110,6 +110,8 @@ function startProcessing(hubSlug, harmonyClient){
   clearInterval(harmonyActivityUpdateTimers[hubSlug])
   harmonyActivityUpdateTimers[hubSlug] = setInterval(function(){ updateActivities(hubSlug) }, harmonyActivityUpdateInterval)
 
+  // update the state
+  updateState(hubSlug)
   // update the list of activities on the set interval
   clearInterval(harmonyStateUpdateTimers[hubSlug])
   harmonyStateUpdateTimers[hubSlug] = setInterval(function(){ updateState(hubSlug) }, harmonyStateUpdateInterval)
@@ -119,7 +121,7 @@ function updateActivities(hubSlug){
   harmonyHubClient = harmonyHubClients[hubSlug]
 
   if (!harmonyHubClient) { return }
-  console.log('Updating activities.')
+  console.log('Updating activities for ' + hubSlug + '.')
 
   try {
     harmonyHubClient.getActivities().then(function(activities){
@@ -136,18 +138,20 @@ function updateActivities(hubSlug){
 
 }
 
-function updateState(){
+function updateState(hubSlug){
+  harmonyHubClient = harmonyHubClients[hubSlug]
+
   if (!harmonyHubClient) { return }
-  console.log('Updating state.')
+  console.log('Updating state for ' + hubSlug + '.')
 
   // save for comparing later after we get the true current state
-  var previousActivity = currentActivity()
+  var previousActivity = currentActivity(hubSlug)
 
   try {
     harmonyHubClient.getCurrentActivity().then(function(activityId){
       data = {off: true}
 
-      activity = harmonyActivitiesCache[activityId]
+      activity = harmonyActivitiesCache[hubSlug][activityId]
 
       if (activityId != -1 && activity) {
         data = {off: false, current_activity: activity}
@@ -156,20 +160,20 @@ function updateState(){
       }
 
       // cache state for later
-      harmonyState = data
+      harmonyHubStates[hubSlug] = data
 
       if (!previousActivity || (activity.id != previousActivity.id)) {
-        publish('current_activity', activity.slug, {retain: true})
-        publish('state', activity.id == -1 ? 'off' : 'on' , {retain: true})
+        // publish('current_activity', activity.slug, {retain: true})
+        // publish('state', activity.id == -1 ? 'off' : 'on' , {retain: true})
 
-        for (var i = 0; i < cachedHarmonyActivities().length; i++) {
-          activities = cachedHarmonyActivities()
+        for (var i = 0; i < cachedHarmonyActivities(hubSlug).length; i++) {
+          activities = cachedHarmonyActivities(hubSlug)
           cachedActivity = activities[i]
 
           if (activity == cachedActivity) {
-            publish('activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
+            // publish('activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
           }else{
-            publish('activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
+            // publish('activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
           }
         }
       }
@@ -182,20 +186,25 @@ function updateState(){
 }
 
 function cachedHarmonyActivities(hubSlug){
+  activities = harmonyActivitiesCache[hubSlug]
+  if (!activities) { return [] }
+
   return Object.keys(harmonyActivitiesCache[hubSlug]).map(function(key) {
     return harmonyActivitiesCache[hubSlug][key]
   })
 }
 
-function currentActivity(){
-  if (!harmonyHubClient || !harmonyState) { return null}
+function currentActivity(hubSlug){
+  harmonyHubClient = harmonyHubClients[hubSlug]
+  harmonyHubState = harmonyHubStates[hubSlug]
+  if (!harmonyHubClient || !harmonyHubState) { return null}
 
-  return harmonyState.current_activity
+  return harmonyHubState.current_activity
 }
 
-function activityBySlug(activitySlug){
+function activityBySlug(hubSlug, activitySlug){
   var activity
-  cachedHarmonyActivities().some(function(a) {
+  cachedHarmonyActivities(hubSlug).some(function(a) {
     if(a.slug === activitySlug) {
       activity = a
       return true
@@ -242,8 +251,8 @@ app.get('/:hubSlug/activities', function(req, res){
   res.json({activities: cachedHarmonyActivities(req.params.hubSlug)})
 })
 
-app.get('/status', function(req, res){
-  res.json(harmonyState)
+app.get('/:hubSlug/status', function(req, res){
+  res.json(harmonyHubStates[req.params.hubSlug])
 })
 
 app.put('/off', function(req, res){
