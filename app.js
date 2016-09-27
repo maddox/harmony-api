@@ -78,24 +78,25 @@ if (config['hub_ip']) {
 // mqtt api
 
 mqttClient.on('connect', function () {
-  mqttClient.subscribe(TOPIC_NAMESPACE + '/activities/+/command')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/activities/+/command')
 });
 
 mqttClient.on('message', function (topic, message) {
-  var commandPattern = new RegExp(/activities\/(.*)\/command/);
+  var commandPattern = new RegExp(/hubs\/(.*)\/activities\/(.*)\/command/);
   var commandMatches = topic.match(commandPattern);
 
   if (commandMatches) {
-    var activitySlug = commandMatches[1]
+    var hubSlug = commandMatches[1]
+    var activitySlug = commandMatches[2]
     var state = message.toString()
 
-    activity = activityBySlugs(activitySlug)
+    activity = activityBySlugs(hubSlug, activitySlug)
     if (!activity) { return }
 
     if (state === 'on') {
-      startActivity(activity.id)
+      startActivity(hubSlug, activity.id)
     }else if (state === 'off'){
-      off()
+      off(hubSlug)
     }
   }
 
