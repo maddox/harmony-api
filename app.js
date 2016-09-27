@@ -164,17 +164,17 @@ function updateState(hubSlug){
       harmonyHubStates[hubSlug] = data
 
       if (!previousActivity || (activity.id != previousActivity.id)) {
-        publish(hubSlug + '/' + 'current_activity', activity.slug, {retain: true})
-        publish(hubSlug + '/' + 'state', activity.id == -1 ? 'off' : 'on' , {retain: true})
+        publish('hubs/' + hubSlug + '/' + 'current_activity', activity.slug, {retain: true})
+        publish('hubs/' + hubSlug + '/' + 'state', activity.id == -1 ? 'off' : 'on' , {retain: true})
 
         for (var i = 0; i < cachedHarmonyActivities(hubSlug).length; i++) {
           activities = cachedHarmonyActivities(hubSlug)
           cachedActivity = activities[i]
 
           if (activity == cachedActivity) {
-            publish(hubSlug + '/' + 'activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
+            publish('hubs/' + hubSlug + '/' + 'activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
           }else{
-            publish(hubSlug + '/' + 'activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
+            publish('hubs/' + hubSlug + '/' + 'activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
           }
         }
       }
