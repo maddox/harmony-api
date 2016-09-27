@@ -295,4 +295,17 @@ app.post('/:hubSlug/start_activity', function(req, res){
   }
 })
 
+app.get('/hubs_for_index', function(req, res){
+  hubSlugs = Object.keys(harmonyHubClients)
+  output = ""
+
+  Object.keys(harmonyHubClients).forEach(function(hubSlug) {
+    output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
+    output += '<p><span class="method">GET</span> <a href="/' + hubSlug + '/status">/' + hubSlug + '/status</a></p>'
+    output += '<p><span class="method">GET</span> <a href="/' + hubSlug + '/activities">/' + hubSlug + '/activities</a></p>'
+  });
+
+  res.send(output)
+})
+
 app.listen(process.env.PORT || 8282)
