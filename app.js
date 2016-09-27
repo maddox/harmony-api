@@ -110,17 +110,19 @@ function startProcessing(hubSlug, harmonyClient){
   harmonyHubClients[hubSlug] = harmonyClient
 
   // update the list of activities
-  updateActivities()
+  updateActivities(hubSlug)
   // then do it on the set interval
   clearInterval(harmonyActivityUpdateTimer)
-  harmonyActivityUpdateTimer = setInterval(function(){ updateActivities() }, harmonyActivityUpdateInterval)
+  harmonyActivityUpdateTimer = setInterval(function(){ updateActivities(hubSlug) }, harmonyActivityUpdateInterval)
 
   // update the list of activities on the set interval
   clearInterval(harmonyStateUpdateTimer)
   harmonyStateUpdateTimer = setInterval(function(){ updateState() }, harmonyStateUpdateInterval)
 }
 
-function updateActivities(){
+function updateActivities(hubSlug){
+  harmonyHubClient = harmonyClient(hubSlug)
+
   if (!harmonyHubClient) { return }
   console.log('Updating activities.')
 
@@ -131,7 +133,7 @@ function updateActivities(){
         foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
       })
 
-      harmonyActivitiesCache = foundActivities
+      harmonyActivitiesCache[hubSlug] = foundActivities
     })
   } catch(err) {
     console.log("ERROR: " + err.message);
