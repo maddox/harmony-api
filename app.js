@@ -89,7 +89,7 @@ mqttClient.on('message', function (topic, message) {
     var activitySlug = commandMatches[1]
     var state = message.toString()
 
-    activity = activityBySlug(activitySlug)
+    activity = activityBySlugs(activitySlug)
     if (!activity) { return }
 
     if (state === 'on') {
@@ -202,7 +202,7 @@ function currentActivity(hubSlug){
   return harmonyHubState.current_activity
 }
 
-function activityBySlug(hubSlug, activitySlug){
+function activityBySlugs(hubSlug, activitySlug){
   var activity
   cachedHarmonyActivities(hubSlug).some(function(a) {
     if(a.slug === activitySlug) {
@@ -214,19 +214,21 @@ function activityBySlug(hubSlug, activitySlug){
   return activity
 }
 
-function off(){
+function off(hubSlug){
+  harmonyHubClient = harmonyHubClients[hubSlug]
   if (!harmonyHubClient) { return }
 
   harmonyHubClient.turnOff().then(function(){
-    updateState()
+    updateState(hubSlug)
   })
 }
 
-function startActivity(activityId){
+function startActivity(hubSlug, activityId){
+  harmonyHubClient = harmonyHubClients[hubSlug]
   if (!harmonyHubClient) { return }
 
   harmonyHubClient.startActivity(activityId).then(function(){
-    updateState()
+    updateState(hubSlug)
   })
 }
 
@@ -247,25 +249,25 @@ app.get('/hubs', function(req, res){
   res.json({hubs: Object.keys(harmonyHubClients)})
 })
 
-app.get('/:hubSlug/activities', function(req, res){
+app.get('/hubs/:hubSlug/activities', function(req, res){
   res.json({activities: cachedHarmonyActivities(req.params.hubSlug)})
 })
 
-app.get('/:hubSlug/status', function(req, res){
+app.get('/hubs/:hubSlug/status', function(req, res){
   res.json(harmonyHubStates[req.params.hubSlug])
 })
 
-app.put('/off', function(req, res){
-  off()
+app.put('/hubs/:hubSlug/off', function(req, res){
+  off(req.params.hubSlug)
 
   res.json({message: "ok"})
 })
 
-app.post('/start_activity', function(req, res){
-  activity = activityBySlug(req.body.activity)
+app.post('/hubs/:hubSlug/start_activity', function(req, res){
+  activity = activityBySlugs(req.params.hubSlug, req.query.activity)
 
   if (activity) {
-    startActivity(activity.id)
+    startActivity(req.params.hubSlug, activity.id)
 
     res.json({message: "ok"})
   }else{
