@@ -16,11 +16,11 @@ var harmony = require('harmonyhubjs-client')
 var harmonyHubClients = {}
 var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
-var harmonyActivityUpdateTimer
+var harmonyActivityUpdateTimers = {}
 
 var harmonyState
 var harmonyStateUpdateInterval = 5*1000 // 5 seconds
-var harmonyStateUpdateTimer
+var harmonyStateUpdateTimers = {}
 
 var mqttClient = config.hasOwnProperty("mqtt_options") ?
     mqtt.connect(config.mqtt_host, config.mqtt_options) :
@@ -107,12 +107,12 @@ function startProcessing(hubSlug, harmonyClient){
   // update the list of activities
   updateActivities(hubSlug)
   // then do it on the set interval
-  clearInterval(harmonyActivityUpdateTimer)
-  harmonyActivityUpdateTimer = setInterval(function(){ updateActivities(hubSlug) }, harmonyActivityUpdateInterval)
+  clearInterval(harmonyActivityUpdateTimers[hubSlug])
+  harmonyActivityUpdateTimers[hubSlug] = setInterval(function(){ updateActivities(hubSlug) }, harmonyActivityUpdateInterval)
 
   // update the list of activities on the set interval
-  clearInterval(harmonyStateUpdateTimer)
-  harmonyStateUpdateTimer = setInterval(function(){ updateState() }, harmonyStateUpdateInterval)
+  clearInterval(harmonyStateUpdateTimers[hubSlug])
+  harmonyStateUpdateTimers[hubSlug] = setInterval(function(){ updateState(hubSlug) }, harmonyStateUpdateInterval)
 }
 
 function updateActivities(hubSlug){
