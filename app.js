@@ -239,6 +239,10 @@ app.get('/', function(req, res){
   res.sendfile('index.html');
 })
 
+app.get('/hubs', function(req, res){
+  res.json({hubs: Object.keys(harmonyHubClients)})
+})
+
 app.get('/:hubSlug/activities', function(req, res){
   res.json({activities: cachedHarmonyActivities(req.params.hubSlug)})
 })
