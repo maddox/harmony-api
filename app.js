@@ -37,7 +37,7 @@ app.use(morgan(logFormat))
 // Middleware
 // Check to make sure we have a harmonyHubClient to connect to
 var hasHarmonyHubClient = function(req, res, next) {
-  if (hasHarmonyHubClient) {
+  if (harmonyHubClient) {
     next()
   }else{
     res.status(500).json({message: "Can not connect to hub."})
