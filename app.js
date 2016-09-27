@@ -250,17 +250,37 @@ app.get('/hubs', function(req, res){
 })
 
 app.get('/:hubSlug/activities', function(req, res){
-  res.json({activities: cachedHarmonyActivities(req.params.hubSlug)})
+  hubSlug = req.params.hubSlug
+  harmonyHubClient = harmonyHubClients[hubSlug]
+
+  if (harmonyHubClient) {
+    res.json({activities: cachedHarmonyActivities(hubSlug)})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
 })
 
 app.get('/:hubSlug/status', function(req, res){
-  res.json(harmonyHubStates[req.params.hubSlug])
+  hubSlug = req.params.hubSlug
+  harmonyHubClient = harmonyHubClients[hubSlug]
+
+  if (harmonyHubClient) {
+    res.json(harmonyHubStates[hubSlug])
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
 })
 
 app.put('/:hubSlug/off', function(req, res){
-  off(req.params.hubSlug)
+  hubSlug = req.params.hubSlug
+  harmonyHubClient = harmonyHubClients[hubSlug]
 
-  res.json({message: "ok"})
+  if (harmonyHubClient) {
+    off(hubSlug)
+    res.json({message: "ok"})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
 })
 
 app.post('/:hubSlug/start_activity', function(req, res){
