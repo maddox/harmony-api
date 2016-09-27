@@ -1,6 +1,6 @@
 {
   "name": "harmony-api",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple server providing a RESTful service for controlling a Harmony Hub.",
   "scripts": {
     "start": "node app.js"

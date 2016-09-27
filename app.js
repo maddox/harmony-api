@@ -61,6 +61,11 @@ discover.on('online', function(hubInfo) {
 
 })
 
+discover.on('offline', function(hub) {
+  // Triggered when a hub disappeared
+  console.log('lost hub at: ' + hub.ip)
+})
+
 if (config['hub_ip']) {
   // Connect to hub:
   console.log('Connecting to Harmony hub at ' + config['hub_ip'])
@@ -116,14 +121,19 @@ function updateActivities(){
   if (!harmonyHubClient) { return }
   console.log('Updating activities.')
 
-  harmonyHubClient.getActivities().then(function(activities){
-    foundActivities = {}
-    activities.some(function(activity) {
-      foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
-    })
+  try {
+    harmonyHubClient.getActivities().then(function(activities){
+      foundActivities = {}
+      activities.some(function(activity) {
+        foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
+      })
 
-    harmonyActivitiesCache = foundActivities
-  })
+      harmonyActivitiesCache = foundActivities
+    })
+  } catch(err) {
+    console.log("ERROR: " + err.message);
+  }
+
 }
 
 function updateState(){
@@ -133,37 +143,42 @@ function updateState(){
   // save for comparing later after we get the true current state
   var previousActivity = currentActivity()
 
-  harmonyHubClient.getCurrentActivity().then(function(activityId){
-    data = {off: true}
+  try {
+    harmonyHubClient.getCurrentActivity().then(function(activityId){
+      data = {off: true}
 
-    activity = harmonyActivitiesCache[activityId]
+      activity = harmonyActivitiesCache[activityId]
 
-    if (activityId != -1 && activity) {
-      data = {off: false, current_activity: activity}
-    }else{
-      data = {off: true, current_activity: activity}
-    }
+      if (activityId != -1 && activity) {
+        data = {off: false, current_activity: activity}
+      }else{
+        data = {off: true, current_activity: activity}
+      }
 
-    // cache state for later
-    harmonyState = data
+      // cache state for later
+      harmonyState = data
 
-    if (!previousActivity || (activity.id != previousActivity.id)) {
-      publish('current_activity', activity.slug, {retain: true})
-      publish('state', activity.id == -1 ? 'off' : 'on' , {retain: true})
+      if (!previousActivity || (activity.id != previousActivity.id)) {
+        publish('current_activity', activity.slug, {retain: true})
+        publish('state', activity.id == -1 ? 'off' : 'on' , {retain: true})
 
-      for (var i = 0; i < cachedHarmonyActivities().length; i++) {
-        activities = cachedHarmonyActivities()
-        cachedActivity = activities[i]
+        for (var i = 0; i < cachedHarmonyActivities().length; i++) {
+          activities = cachedHarmonyActivities()
+          cachedActivity = activities[i]
 
-        if (activity == cachedActivity) {
-          publish('activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
-        }else{
-          publish('activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
+          if (activity == cachedActivity) {
+            publish('activities/' + cachedActivity.slug + '/state', 'on', {retain: true})
+          }else{
+            publish('activities/' + cachedActivity.slug + '/state', 'off', {retain: true})
+          }
         }
       }
-    }
 
-  })
+    })
+  } catch(err) {
+    console.log("ERROR: " + err.message);
+  }
+
 }
 
 function cachedHarmonyActivities(){
