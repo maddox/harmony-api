@@ -249,21 +249,21 @@ app.get('/hubs', function(req, res){
   res.json({hubs: Object.keys(harmonyHubClients)})
 })
 
-app.get('/hubs/:hubSlug/activities', function(req, res){
+app.get('/:hubSlug/activities', function(req, res){
   res.json({activities: cachedHarmonyActivities(req.params.hubSlug)})
 })
 
-app.get('/hubs/:hubSlug/status', function(req, res){
+app.get('/:hubSlug/status', function(req, res){
   res.json(harmonyHubStates[req.params.hubSlug])
 })
 
-app.put('/hubs/:hubSlug/off', function(req, res){
+app.put('/:hubSlug/off', function(req, res){
   off(req.params.hubSlug)
 
   res.json({message: "ok"})
 })
 
-app.post('/hubs/:hubSlug/start_activity', function(req, res){
+app.post('/:hubSlug/start_activity', function(req, res){
   activity = activityBySlugs(req.params.hubSlug, req.query.activity)
 
   if (activity) {
