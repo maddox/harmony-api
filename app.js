@@ -13,7 +13,7 @@ var config = require(config_dir + '/config.json');
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
 
-var harmonyHubClient
+var harmonyHubClients = {}
 var harmonyActivitiesCache = {}
 var harmonyActivityUpdateInterval = 1*60*1000 // 1 minute
 var harmonyActivityUpdateTimer
@@ -37,10 +37,10 @@ app.use(morgan(logFormat))
 // Middleware
 // Check to make sure we have a harmonyHubClient to connect to
 var hasHarmonyHubClient = function(req, res, next) {
-  if (harmonyHubClient) {
+  if (Object.keys(harmonyHubClients).length > 0) {
     next()
   }else{
-    res.status(500).json({message: "Can not connect to hub."})
+    res.status(500).json({message: "No hubs available."})
   }
 }
 app.use(hasHarmonyHubClient)
@@ -53,7 +53,9 @@ discover.on('online', function(hubInfo) {
   console.log('Hub discovered: ' + hubInfo.friendlyName + ' at ' + hubInfo.ip + '.')
 
   if (hubInfo.ip) {
-    harmony(hubInfo.ip).then(startProcessing)
+    harmony(hubInfo.ip).then(function(client){
+      startProcessing(parameterize(hubInfo.friendlyName), client)
+    })
   }
 
 })
@@ -100,8 +102,12 @@ mqttClient.on('message', function (topic, message) {
 });
 
 
-function startProcessing(harmonyClient){
-  harmonyHubClient = harmonyClient
+function harmonyClient(hubSlug){
+  return harmonyHubClients[hubSlug]
+}
+
+function startProcessing(hubSlug, harmonyClient){
+  harmonyHubClients[hubSlug] = harmonyClient
 
   // update the list of activities
   updateActivities()
