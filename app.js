@@ -250,7 +250,7 @@ app.get('/hubs', function(req, res){
   res.json({hubs: Object.keys(harmonyHubClients)})
 })
 
-app.get('/:hubSlug/activities', function(req, res){
+app.get('/hubs/:hubSlug/activities', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -261,7 +261,7 @@ app.get('/:hubSlug/activities', function(req, res){
   }
 })
 
-app.get('/:hubSlug/status', function(req, res){
+app.get('/hubs/:hubSlug/status', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -272,7 +272,7 @@ app.get('/:hubSlug/status', function(req, res){
   }
 })
 
-app.put('/:hubSlug/off', function(req, res){
+app.put('/hubs/:hubSlug/off', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -284,7 +284,7 @@ app.put('/:hubSlug/off', function(req, res){
   }
 })
 
-app.post('/:hubSlug/start_activity', function(req, res){
+app.post('/hubs/:hubSlug/start_activity', function(req, res){
   activity = activityBySlugs(req.params.hubSlug, req.query.activity)
 
   if (activity) {
@@ -302,8 +302,8 @@ app.get('/hubs_for_index', function(req, res){
 
   Object.keys(harmonyHubClients).forEach(function(hubSlug) {
     output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
-    output += '<p><span class="method">GET</span> <a href="/' + hubSlug + '/status">/' + hubSlug + '/status</a></p>'
-    output += '<p><span class="method">GET</span> <a href="/' + hubSlug + '/activities">/' + hubSlug + '/activities</a></p>'
+    output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
+    output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
   });
 
   res.send(output)
