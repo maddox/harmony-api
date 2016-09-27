@@ -53,9 +53,6 @@ discover.on('online', function(hubInfo) {
   console.log('Hub discovered: ' + hubInfo.friendlyName + ' at ' + hubInfo.ip + '.')
 
   if (hubInfo.ip) {
-    console.log('Stopping discovery.')
-    discover.stop()
-
     harmony(hubInfo.ip).then(startProcessing)
   }
 
