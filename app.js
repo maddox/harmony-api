@@ -186,9 +186,9 @@ function updateState(){
 
 }
 
-function cachedHarmonyActivities(){
-  return Object.keys(harmonyActivitiesCache).map(function(key) {
-    return harmonyActivitiesCache[key]
+function cachedHarmonyActivities(hubSlug){
+  return Object.keys(harmonyActivitiesCache[hubSlug]).map(function(key) {
+    return harmonyActivitiesCache[hubSlug][key]
   })
 }
 
@@ -239,8 +239,8 @@ app.get('/', function(req, res){
   res.sendfile('index.html');
 })
 
-app.get('/activities', function(req, res){
-  res.json({activities: cachedHarmonyActivities()})
+app.get('/:hubSlug/activities', function(req, res){
+  res.json({activities: cachedHarmonyActivities(req.params.hubSlug)})
 })
 
 app.get('/status', function(req, res){
