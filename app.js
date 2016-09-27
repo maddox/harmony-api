@@ -50,7 +50,7 @@ var discover = new harmonyHubDiscover(61991)
 
 discover.on('online', function(hubInfo) {
   // Triggered when a new hub was found
-  console.log('Hub discovered ' + hubInfo.ip + '.')
+  console.log('Hub discovered: ' + hubInfo.friendlyName + ' at ' + hubInfo.ip + '.')
 
   if (hubInfo.ip) {
     console.log('Stopping discovery.')
@@ -61,9 +61,9 @@ discover.on('online', function(hubInfo) {
 
 })
 
-discover.on('offline', function(hub) {
+discover.on('offline', function(hubInfo) {
   // Triggered when a hub disappeared
-  console.log('lost hub at: ' + hub.ip)
+  console.log('Hub lost: ' + hubInfo.friendlyName + ' at ' + hubInfo.ip + '.')
 })
 
 if (config['hub_ip']) {
