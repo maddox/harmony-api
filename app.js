@@ -101,11 +101,6 @@ mqttClient.on('message', function (topic, message) {
 
 });
 
-
-function harmonyClient(hubSlug){
-  return harmonyHubClients[hubSlug]
-}
-
 function startProcessing(hubSlug, harmonyClient){
   harmonyHubClients[hubSlug] = harmonyClient
 
@@ -121,7 +116,7 @@ function startProcessing(hubSlug, harmonyClient){
 }
 
 function updateActivities(hubSlug){
-  harmonyHubClient = harmonyClient(hubSlug)
+  harmonyHubClient = harmonyHubClients[hubSlug]
 
   if (!harmonyHubClient) { return }
   console.log('Updating activities.')
