@@ -29,9 +29,19 @@ broker's host to connect to it.
 
 ```json
 {
-  "mqtt_host": "192.168.1.106"
+  "mqtt_host": "192.168.1.106",
+  "mqtt_options": {
+      "port": 1883,
+      "username": "someuser",
+      "password": "somepassword",
+      "rejectUnauthorized": false
+  },
+  "topic_namespace": "home/harmony"
 }
 ```
+
+`mqtt_options` is optional, see the [mqtt](https://github.com/mqttjs/MQTT.js#connect) project for
+allowed host and options values.
 
 ## Running It
 Get up and running immediately with `script/server`.
@@ -52,6 +62,17 @@ mode with logging to standard out.
 
     script/install
 
+### Docker
+Installation with Docker is straightforward. Adjust the following command so that
+`/path/to/your/config` points to the folder where your want to store your config and run it:
+
+    $ docker run --name="harmony-api" -v /path/to/your/config:/config \
+        -p 8282:8282 -d jonmaddox/harmony-api
+
+This will launch Harmony API and serve the web interface from port 8282 on your Docker host. Hub
+discovery requires host networking (`--net=host`). However, you can specify your Harmony Hub IP
+address in `config.json` as `hub_ip`.
+
 ## Logging
 
 Harmony API logs all of its requests. In `production`, it logs to a file at `log/logs.log`.
@@ -66,7 +87,8 @@ Launch the app via `script/server` to run it in the development environment.
 harmony-api can report its state changes to your MQTT broker. Just edit your
 config file in `config/config.json` to add your MQTT host.
 
-harmony-api publishes topics with the namespace of: `harmony-api`.
+By default harmony-api publishes topics with the namespace of: `harmony-api`. This can be overriden
+by setting `topic_namespace` in your config file.
 
 ### State Topics
 

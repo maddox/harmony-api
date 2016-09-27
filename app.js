@@ -5,9 +5,10 @@ var mqtt = require('mqtt');
 var express = require('express')
 var morgan = require('morgan')
 var bodyParser = require('body-parser')
-var parameterize = require('parameterize');
+var parameterize = require('parameterize')
 
-var config = require('./config/config.json');
+var config_dir = process.env.CONFIG_DIR || './config'
+var config = require(config_dir + '/config.json');
 
 var harmonyHubDiscover = require('harmonyhubjs-discover')
 var harmony = require('harmonyhubjs-client')
@@ -21,8 +22,10 @@ var harmonyState
 var harmonyStateUpdateInterval = 5*1000 // 5 seconds
 var harmonyStateUpdateTimer
 
-var mqttClient = mqtt.connect(config.mqtt_host);
-var TOPIC_NAMESPACE = "harmony-api"
+var mqttClient = config.hasOwnProperty("mqtt_options") ?
+    mqtt.connect(config.mqtt_host, config.mqtt_options) :
+    mqtt.connect(config.mqtt_host);
+var TOPIC_NAMESPACE = config.topic_namespace || "harmony-api";
 
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
