@@ -1,0 +1,6 @@
+{
+  "name": "Harmony API",
+  "tagline": "A simple server that allows you to query/control multiple local Harmony hubs over HTTP or MQTT",
+  "body": "# Harmony API\r\n\r\nHarmony API is a simple server that allows you to query/control multiple local [Harmony\r\nHome Hubs](http://myharmony.com/products/detail/home-hub/) over HTTP or MQTT.\r\n\r\nWith HTTP, you can simply turn your devices on and off and check their status\r\nwith simple HTTP requests from almost any other project.\r\n\r\nWith MQTT, you can easily monitor the state of your devices as well as set\r\nthe current activity of your hub. This makes it super easy to integrate\r\ninto your existing home automation setup.\r\n\r\n\r\n## Features\r\n\r\n* Control multiple Harmony hubs.\r\n* List activities.\r\n* Get current status, including if everything is off, or what the current activity is.\r\n* Turn everything off.\r\n* Start a specific activity.\r\n\r\nLearn more about everything Harmony API can do with [HTTP](https://github.com/maddox/harmony-api#http-docs) and [MQTT](https://github.com/maddox/harmony-api#mqtt-docs) on its [GitHub repo](https://github.com/maddox/harmony-api).\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
