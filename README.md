@@ -55,15 +55,6 @@ harmony-api has support for [Forever](https://github.com/foreverjs/forever). It 
 `launchd` on OS X to kick it off so that it starts on boot. There is no `init.d`
 or other Linux support of this type. Pull requests would be welcome for this though.
 
-## How to Upgrade to 2.0
-
-Simply run `script/upgrade` from the root of the project and Harmony API will
-upgrade to the newest version.
-
-You are then going to have to change anything you integrate with Harmony API to
-reflect the change in HTTP endpoints and MQTT topics. Read the docs in this
-README to see how they have changed.
-
 ### Development
 You can simply run it by calling `script/server`. This will run it in development
 mode with logging to standard out.
@@ -87,6 +78,15 @@ address in `config.json` as `hub_ip`.
 
 Harmony API logs all of its requests. In `production`, it logs to a file at `log/logs.log`.
 In `development` mode, it just logs to stdout.
+
+## How to Upgrade to 2.0
+
+Simply run `script/upgrade` from the root of the project and Harmony API will
+upgrade to the newest version.
+
+You are then going to have to change anything you integrate with Harmony API to
+reflect the change in HTTP endpoints and MQTT topics. Read the docs in this
+README to see how they have changed.
 
 ## Development
 
