@@ -9,6 +9,7 @@ COPY package.json /usr/src/app
 RUN npm install
 
 COPY . /usr/src/app
+COPY ./config/config.sample.json /config/config.json
 
 ENV CONFIG_DIR /config
 
