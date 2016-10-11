@@ -72,9 +72,17 @@ discover.on('offline', function(hubInfo) {
   delete(harmonyHubStates[hubSlug])
 })
 
-// Look for hubs:
-console.log('Starting discovery.')
-discover.start()
+if (config.hasOwnProperty("hubs") && Array.isArray(config.hubs)) {
+  config.hubs.forEach(function(hub) {
+    harmony(hub.ip).then(function(client){
+      startProcessing(parameterize(hub.name), client)
+    })
+  })
+} else {
+  // Look for hubs:
+  console.log('Starting discovery.')
+  discover.start()
+}
 
 // mqtt api
 
