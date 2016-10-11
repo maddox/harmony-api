@@ -71,8 +71,20 @@ Installation with Docker is straightforward. Adjust the following command so tha
         -p 8282:8282 -d jonmaddox/harmony-api
 
 This will launch Harmony API and serve the web interface from port 8282 on your Docker host. Hub
-discovery requires host networking (`--net=host`). However, you can specify your Harmony Hub IP
-address in `config.json` as `hub_ip`.
+discovery requires host networking (`--net=host`). However, you can specify your Harmony Hubs in
+`config.json` e.g.:
+```json
+  "hubs": [
+    {
+      "name": "Living Room",
+      "ip": "192.168.1.111"
+    },
+    {
+      "name": "Bedroom",
+      "ip": "192.168.1.112"
+    },
+  ]
+```
 
 ## Logging
 
