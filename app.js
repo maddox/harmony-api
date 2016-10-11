@@ -22,6 +22,10 @@ var harmonyHubStates = {}
 var harmonyStateUpdateInterval = 5*1000 // 5 seconds
 var harmonyStateUpdateTimers = {}
 
+var harmonyDevicesCache = {}
+var harmonyDeviceUpdateInterval = 1*60*1000 // 1 minute
+var harmonyDeviceUpdateTimers = {}
+
 var mqttClient = config.hasOwnProperty("mqtt_options") ?
     mqtt.connect(config.mqtt_host, config.mqtt_options) :
     mqtt.connect(config.mqtt_host);
@@ -117,6 +121,12 @@ function startProcessing(hubSlug, harmonyClient){
   // update the list of activities on the set interval
   clearInterval(harmonyStateUpdateTimers[hubSlug])
   harmonyStateUpdateTimers[hubSlug] = setInterval(function(){ updateState(hubSlug) }, harmonyStateUpdateInterval)
+
+  // update devices
+  updateDevices(hubSlug)
+  // update the list of devices on the set interval
+  clearInterval(harmonyDeviceUpdateTimers[hubSlug])
+  harmonyDeviceUpdateTimers[hubSlug] = setInterval(function(){ updateDevices(hubSlug) }, harmonyDeviceUpdateInterval)
 }
 
 function updateActivities(hubSlug){
@@ -187,6 +197,39 @@ function updateState(hubSlug){
 
 }
 
+function updateDevices(hubSlug){
+  harmonyHubClient = harmonyHubClients[hubSlug]
+
+  if (!harmonyHubClient) { return }
+  console.log('Updating devices for ' + hubSlug + '.')
+  try {
+    harmonyHubClient.getAvailableCommands().then(function(commands) {
+      foundDevices = {}
+      commands.device.some(function(device) {
+        deviceCommands = {}
+        device.controlGroup.some(function(group) {
+          group.function.some(function(func) {
+            deviceCommands[func.name] = {action:func.action, label:func.label}
+          })
+        })
+        foundDevices[device.id] = {id: device.id, slug: parameterize(device.label), label:device.label, commands:deviceCommands}
+      })
+
+      harmonyDevicesCache[hubSlug] = foundDevices
+    })
+
+    for (var i = 0; i < cachedHarmonyDevices(hubSlug).length; i++) {
+      devices = cachedHarmonyDevices(hubSlug)
+      cachedDevice = devices[i]
+      actions = Object.keys(cachedDevice.commands)
+
+      publish('hubs/' + hubSlug + '/' + 'devices/' + cachedDevice.slug + '/actions', JSON.stringify(actions), {retain: true})
+    }
+  } catch(err) {
+    console.log("Devices ERROR: " + err.message);
+  }
+}
+
 function cachedHarmonyActivities(hubSlug){
   activities = harmonyActivitiesCache[hubSlug]
   if (!activities) { return [] }
@@ -214,6 +257,15 @@ function activityBySlugs(hubSlug, activitySlug){
   })
 
   return activity
+}
+
+function cachedHarmonyDevices(hubSlug){
+  devices = harmonyDevicesCache[hubSlug]
+  if (!devices) { return [] }
+
+  return Object.keys(harmonyDevicesCache[hubSlug]).map(function(key) {
+    return harmonyDevicesCache[hubSlug][key]
+  })
 }
 
 function off(hubSlug){
