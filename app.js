@@ -218,13 +218,6 @@ function updateDevices(hubSlug){
       harmonyDevicesCache[hubSlug] = foundDevices
     })
 
-    for (var i = 0; i < cachedHarmonyDevices(hubSlug).length; i++) {
-      devices = cachedHarmonyDevices(hubSlug)
-      cachedDevice = devices[i]
-      actions = Object.keys(cachedDevice.commands)
-
-      publish('hubs/' + hubSlug + '/' + 'devices/' + cachedDevice.slug + '/actions', JSON.stringify(actions), {retain: true})
-    }
   } catch(err) {
     console.log("Devices ERROR: " + err.message);
   }
