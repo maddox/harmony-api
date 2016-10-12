@@ -307,6 +307,20 @@ app.get('/hubs/:hubSlug/activities', function(req, res){
   }
 })
 
+app.get('/hubs/:hubSlug/devices', function(req, res){
+  hubSlug = req.params.hubSlug
+  harmonyHubClient = harmonyHubClients[hubSlug]
+
+  if (harmonyHubClient) {
+    var devices = [];
+    res.json({devices: cachedHarmonyDevices(hubSlug).map(function(device) {
+      return device.slug
+    })})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
 app.get('/hubs/:hubSlug/status', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
@@ -350,6 +364,7 @@ app.get('/hubs_for_index', function(req, res){
     output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
+    output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/devices">/hubs/' + hubSlug + '/devices</a></p>'
   });
 
   res.send(output)
