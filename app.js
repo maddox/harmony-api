@@ -273,6 +273,17 @@ function deviceBySlugs(hubSlug, deviceSlug){
   return device
 }
 
+function commandBySlugs(hubSlug, deviceSlug, commandSlug){
+  var command
+  device = deviceBySlugs(hubSlug, deviceSlug)
+  if (device){
+    if (commandSlug in device.commands){
+      command = device.commands[commandSlug]
+    }
+  }
+
+  return command
+}
 
 function off(hubSlug){
   harmonyHubClient = harmonyHubClients[hubSlug]
@@ -289,6 +300,17 @@ function startActivity(hubSlug, activityId){
 
   harmonyHubClient.startActivity(activityId).then(function(){
     updateState(hubSlug)
+  })
+}
+
+function sendAction(hubSlug, action){
+  harmonyHubClient = harmonyHubClients[hubSlug]
+  if (!harmonyHubClient) { return }
+
+  var pressAction = 'action=' + action + ':status=press:timestamp=0';
+  var releaseAction =  'action=' + action + ':status=release:timestamp=55';
+  harmonyHubClient.send('holdAction', pressAction).then(function (){
+     harmonyHubClient.send('holdAction', releaseAction)
   })
 }
 
@@ -374,6 +396,18 @@ app.post('/hubs/:hubSlug/start_activity', function(req, res){
 
   if (activity) {
     startActivity(req.params.hubSlug, activity.id)
+
+    res.json({message: "ok"})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
+app.post('/hubs/:hubSlug/devices/:deviceSlug/activate_command', function(req, res){
+  command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.query.command)
+
+  if (command) {
+    sendAction(req.params.hubSlug, command.action)
 
     res.json({message: "ok"})
   }else{
