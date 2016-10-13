@@ -209,7 +209,7 @@ function updateDevices(hubSlug){
         deviceCommands = {}
         device.controlGroup.some(function(group) {
           group.function.some(function(func) {
-            deviceCommands[func.name] = {action:func.action, label:func.label}
+            deviceCommands[parameterize(func.label)] = {name: func.name, label: func.label, action:func.action.replace(/\:/g, '::')}
           })
         })
         foundDevices[device.id] = {id: device.id, slug: parameterize(device.label), label:device.label, commands:deviceCommands}
@@ -260,6 +260,19 @@ function cachedHarmonyDevices(hubSlug){
     return harmonyDevicesCache[hubSlug][key]
   })
 }
+
+function deviceBySlugs(hubSlug, deviceSlug){
+  var device
+  cachedHarmonyDevices(hubSlug).some(function(d) {
+    if(d.slug === deviceSlug) {
+      device = d
+      return true
+    }
+  })
+
+  return device
+}
+
 
 function off(hubSlug){
   harmonyHubClient = harmonyHubClients[hubSlug]
@@ -321,6 +334,18 @@ app.get('/hubs/:hubSlug/devices', function(req, res){
   }
 })
 
+app.get('/hubs/:hubSlug/devices/:deviceSlug/commands', function(req, res){
+  hubSlug = req.params.hubSlug
+  deviceSlug = req.params.deviceSlug
+  device = deviceBySlugs(hubSlug, deviceSlug)
+
+  if (device) {
+    res.json({commands: Object.keys(device.commands)})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
 app.get('/hubs/:hubSlug/status', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
@@ -365,6 +390,10 @@ app.get('/hubs_for_index', function(req, res){
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/devices">/hubs/' + hubSlug + '/devices</a></p>'
+    cachedHarmonyDevices(hubSlug).forEach(function(device) {
+      path = '/hubs/' + hubSlug + '/devices/' + device.slug + '/commands'
+      output += '<p><span class="method">GET</span> <a href="' + path + '">' + path + '</a></p>'
+    })
   });
 
   res.send(output)
