@@ -359,10 +359,10 @@ app.get('/hubs/:hubSlug/devices', function(req, res){
   harmonyHubClient = harmonyHubClients[hubSlug]
 
   if (harmonyHubClient) {
-    var devices = [];
-    res.json({devices: cachedHarmonyDevices(hubSlug).map(function(device) {
+    var deviceSlugs = cachedHarmonyDevices(hubSlug).map(function(device) {
       return device.slug
-    })})
+    })
+    res.json({devices: deviceSlugs})
   }else{
     res.status(404).json({message: "Not Found"})
   }
