@@ -84,15 +84,18 @@ discover.start()
 
 mqttClient.on('connect', function () {
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/activities/+/command')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/devices/+/command')
 });
 
 mqttClient.on('message', function (topic, message) {
-  var commandPattern = new RegExp(/hubs\/(.*)\/activities\/(.*)\/command/);
-  var commandMatches = topic.match(commandPattern);
+  var activityCommandPattern = new RegExp(/hubs\/(.*)\/activities\/(.*)\/command/);
+  var deviceCommandPattern = new RegExp(/hubs\/(.*)\/devices\/(.*)\/command/);
+  var activityCommandMatches = topic.match(activityCommandPattern);
+  var deviceCommandMatches = topic.match(deviceCommandPattern);
 
-  if (commandMatches) {
-    var hubSlug = commandMatches[1]
-    var activitySlug = commandMatches[2]
+  if (activityCommandMatches) {
+    var hubSlug = activityCommandMatches[1]
+    var activitySlug = activityCommandMatches[2]
     var state = message.toString()
 
     activity = activityBySlugs(hubSlug, activitySlug)
@@ -103,6 +106,15 @@ mqttClient.on('message', function (topic, message) {
     }else if (state === 'off'){
       off(hubSlug)
     }
+  } else if (deviceCommandMatches) {
+    var hubSlug = deviceCommandMatches[1]
+    var deviceSlug = deviceCommandMatches[2]
+    var command = message.toString()
+
+    command = commandBySlugs(hubSlug, deviceSlug, command)
+    if (!command) { return }
+
+    sendAction(hubSlug, command.action)
   }
 
 });
