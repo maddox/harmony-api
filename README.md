@@ -200,6 +200,7 @@ These are the endpoints you can hit to do things.
   Use these endpoints to control your devices through your Harmony Hub.
 
     PUT /hubs/:hub_slug/off => {message: "ok"}
+    POST /hubs/:hub_slug/activities/:activity_slug => {message: "ok"}
 
 ## Contributions
 
