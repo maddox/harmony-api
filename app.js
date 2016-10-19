@@ -420,8 +420,6 @@ app.post('/hubs/:hubSlug/start_activity', function(req, res){
   }
 })
 
-app.post('/hubs/:hubSlug/devices/:deviceSlug/activate_command', function(req, res){
-  command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.query.command)
 app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
   activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
 
@@ -434,6 +432,8 @@ app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
   }
 })
 
+app.post('/hubs/:hubSlug/devices/:deviceSlug/commands/:commandSlug', function(req, res){
+  command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
 
   if (command) {
     sendAction(req.params.hubSlug, command.action)
