@@ -1,23 +1,29 @@
 # Harmony API!!
 
 Harmony API is a simple server allowing you to query/control multiple local [Harmony
-Home Hubs](http://myharmony.com/products/detail/home-hub/) over HTTP or MQTT.
+Home Hubs](http://myharmony.com/products/detail/home-hub/) and their devices
+over HTTP or MQTT.
 
-With HTTP, you can simply turn your devices on and off and check their status
-with simple HTTP requests from almost any other project.
+With HTTP, you can simply turn on and off activities, check hub status, and send
+commands to individual devices with simple HTTP requests from almost any other
+project.
 
 With MQTT, you can easily monitor the state of your devices as well as set
-the current activity of your hub. This makes it super easy to integrate
-into your existing home automation setup.
+the current activity of your hub or send specific commands per device. This
+makes it super easy to integrate into your existing home automation setup.
 
 
 ## Features
 
 * Control multiple Harmony hubs.
 * List activities.
-* Get current status, including if everything is off, or what the current activity is.
+* Get current status, including if everything is off, or what the current
+activity is.
 * Turn everything off.
 * Start a specific activity.
+* List devices.
+* List device commands.
+* Execute discrete commands for each device.
 
 ## Setup
 
