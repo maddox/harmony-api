@@ -29,12 +29,15 @@
         <p><span class="method">GET</span> <a href="/hubs">/hubs</a></p>
         <p><span class="method">GET</span> /hubs/:hub_slug/status</p>
         <p><span class="method">GET</span> /hubs/:hub_slug/activities</p>
+        <p><span class="method">GET</span> /hubs/:hub_slug/devices</p>
+        <p><span class="method">GET</span> /hubs/:hub_slug/devices/:device_slug/commands</p>
       </div>
 
       <div class="docs">
         <h2>Control</h2>
         <p><span class="method">PUT</span> /hubs/:hub_slug/off</p>
         <p><span class="method">POST</span> /hubs/:hub_slug/start_activity?activity=watch-tv</p>
+        <p><span class="method">POST</span> /hubs/:hub_slug/devices/:device_slug/activate_command?command=power-on</p>
       </div>
 
       <div class="docs">
