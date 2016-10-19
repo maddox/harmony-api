@@ -169,6 +169,32 @@ Activity set up in your Harmony Hub.
 }
 ```
 
+#### Device Resource
+
+The Device resource returns all the information you need to know about the
+devices set up for the hub.
+
+```json
+{
+  "id": "38343689",
+  "slug": "tivo-premiere",
+  "label": "TiVo Premiere"
+}
+```
+
+#### Command Resource
+
+The Command resource returns all the information you really need for a
+Command to let you execute it.
+
+```json
+{
+  "name": "ChannelDown",
+  "slug": "channel-down",
+  "label":"Channel Down"
+}
+```
+
 #### Status Resource
 
 The Status resource returns the current state of your Harmony Hub.
@@ -195,12 +221,15 @@ These are the endpoints you can hit to do things.
     GET /hubs => {"hubs": ["family-room", "bedroom"] }
     GET /hubs/:hub_slug/status => StatusResource
     GET /hubs/:hub_slug/activities => {"activities": [ActivityResource, ActivityResource, ...]}
+    GET /hubs/:hub_slug/devices => {"devices": [DeviceResource, DeviceResource, ...]}
+    GET /hubs/:hub_slug/devices/:device_slug/commands => {"commands": [CommandResource, CommandResource, ...]}
 
 #### Control
   Use these endpoints to control your devices through your Harmony Hub.
 
     PUT /hubs/:hub_slug/off => {message: "ok"}
     POST /hubs/:hub_slug/activities/:activity_slug => {message: "ok"}
+    POST /hubs/:hub_slug/devices/:device_slug/commands/:command_slug => {message: "ok"}
 
 ## Contributions
 
