@@ -407,6 +407,7 @@ app.put('/hubs/:hubSlug/off', function(req, res){
   }
 })
 
+// DEPRECATED
 app.post('/hubs/:hubSlug/start_activity', function(req, res){
   activity = activityBySlugs(req.params.hubSlug, req.query.activity)
 
