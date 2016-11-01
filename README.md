@@ -149,7 +149,7 @@ Just provide the slug of the hub and activity you want to switch to and `on` as
 the message. Any use of this topic with the message `off` will turn everything
 off.
 
-`harmony-api/activities/watch-tv/command` `on`  
+`harmony-api/hubs/family-room/activities/watch-tv/command` `on`  
 
 
 ## HTTP API Docs
