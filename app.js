@@ -445,6 +445,22 @@ app.get('/hubs/:hubSlug/status', function(req, res){
   }
 })
 
+app.post('/hubs/:hubSlug/current_activity/:commandSlug', function(req, res){
+  hubSlug = req.params.hubSlug
+  activitySlug = harmonyHubStates[hubSlug].current_activity.slug
+  var commandSlug = req.params.commandSlug
+
+  activity = activityBySlugs(hubSlug, activitySlug)
+  if (activity && commandSlug in activity.commands)
+  {
+    sendAction(hubSlug, activity.commands[commandSlug].action)
+
+    res.json({message: "ok"})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
 app.put('/hubs/:hubSlug/off', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
@@ -475,19 +491,6 @@ app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
 
   if (activity) {
     startActivity(req.params.hubSlug, activity.id)
-
-    res.json({message: "ok"})
-  }else{
-    res.status(404).json({message: "Not Found"})
-  }
-})
-
-app.post('/hubs/:hubSlug/activities/:activitySlug/commands/:commandSlug', function(req, res){
-  activity = activityBySlugs(req.params.hubSlug, req.params.deviceSlug)
-  commandSlug = req.params.commandSlug
-
-  if (activity && commandSlug in activity.commands) {
-    sendAction(req.params.hubSlug, activity.commands[commandSlug].action)
 
     res.json({message: "ok"})
   }else{
