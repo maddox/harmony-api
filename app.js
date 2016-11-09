@@ -518,6 +518,10 @@ app.get('/hubs_for_index', function(req, res){
     output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
+    cachedHarmonyActivities(hubSlug).forEach(function(activity) {
+      path = '/hubs/' + hubSlug + '/activities/' + activity.slug + '/commands'
+      output += '<p><span class="method">GET</span> <a href="' + path + '">' + path + '</a></p>'
+    })
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/devices">/hubs/' + hubSlug + '/devices</a></p>'
     cachedHarmonyDevices(hubSlug).forEach(function(device) {
       path = '/hubs/' + hubSlug + '/devices/' + device.slug + '/commands'
