@@ -6,7 +6,7 @@ test -z "$NODE_ENV" &&
   export NODE_ENV='development'
 
 if [ "$NODE_ENV" = "development" ]; then
-  /usr/local/bin/forever -f config/forever/development.json
+  /usr/bin/env forever -f config/forever/development.json
 else
-  /usr/local/bin/forever start config/forever/production.json
+  /usr/bin/env forever start config/forever/production.json
 fi
