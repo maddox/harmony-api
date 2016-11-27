@@ -111,7 +111,7 @@ mqttClient.on('message', function (topic, message) {
     var deviceSlug = deviceCommandMatches[2]
     var command = message.toString()
 
-    command = commandBySlugs(hubSlug, deviceSlug, command)
+    command = deviceCommandBySlugs(hubSlug, deviceSlug, command)
     if (!command) { return }
 
     sendAction(hubSlug, command.action)
@@ -151,7 +151,14 @@ function updateActivities(hubSlug){
     harmonyHubClient.getActivities().then(function(activities){
       foundActivities = {}
       activities.some(function(activity) {
-        foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
+        // console.log('Found activity: ' + JSON.stringify(activity));
+        activityCommands = {}
+        activity.controlGroup.some(function(group) {
+          group.function.some(function(func) {
+            activityCommands[parameterize(func.label)] = {name: func.name, label: func.label, action:func.action.replace(/\:/g, '::')}
+          })
+        })
+        foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity, commands: activityCommands}
       })
 
       harmonyActivitiesCache[hubSlug] = foundActivities
@@ -285,12 +292,24 @@ function deviceBySlugs(hubSlug, deviceSlug){
   return device
 }
 
-function commandBySlugs(hubSlug, deviceSlug, commandSlug){
+function deviceCommandBySlugs(hubSlug, deviceSlug, commandSlug){
   var command
   device = deviceBySlugs(hubSlug, deviceSlug)
   if (device){
     if (commandSlug in device.commands){
       command = device.commands[commandSlug]
+    }
+  }
+
+  return command
+}
+
+function activityCommandBySlugs(hubSlug, activitySlug, commandSlug){
+  var command
+  activity = activityBySlugs(hubSlug, activitySlug)
+  if (activity){
+    if (commandSlug in activity.commands){
+      command = activity.commands[commandSlug]
     }
   }
 
@@ -315,15 +334,18 @@ function startActivity(hubSlug, activityId){
   })
 }
 
-function sendAction(hubSlug, action){
+function sendAction(hubSlug, action, repeat){
+  repeat = Number.parseInt(repeat) || 1;
   harmonyHubClient = harmonyHubClients[hubSlug]
   if (!harmonyHubClient) { return }
 
   var pressAction = 'action=' + action + ':status=press:timestamp=0';
   var releaseAction =  'action=' + action + ':status=release:timestamp=55';
-  harmonyHubClient.send('holdAction', pressAction).then(function (){
-     harmonyHubClient.send('holdAction', releaseAction)
-  })
+  for (var i = 0; i < repeat; i++) {
+    harmonyHubClient.send('holdAction', pressAction).then(function (){
+       harmonyHubClient.send('holdAction', releaseAction)
+    })
+  }
 }
 
 function publish(topic, message, options){
@@ -348,7 +370,10 @@ app.get('/hubs/:hubSlug/activities', function(req, res){
   harmonyHubClient = harmonyHubClients[hubSlug]
 
   if (harmonyHubClient) {
-    res.json({activities: cachedHarmonyActivities(hubSlug)})
+    var activities = cachedHarmonyActivities(hubSlug).map(function(activity) {
+      return {id:activity.id, slug:activity.slug, label:activity.label}
+    })
+    res.json({activities: activities})
   }else{
     res.status(404).json({message: "Not Found"})
   }
@@ -363,6 +388,26 @@ app.get('/hubs/:hubSlug/devices', function(req, res){
       return {id:device.id, slug:device.slug, label:device.label}
     })
     res.json({devices: devices})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
+app.get('/hubs/:hubSlug/commands', function(req, res){
+  var hubSlug = req.params.hubSlug
+  var state = harmonyHubStates[hubSlug]
+
+  if (state && state.current_activity) {
+    activity = activityBySlugs(hubSlug, state.current_activity.slug)
+    if (activity) {
+      commands =  Object.keys(activity.commands).map(function(commandSlug){
+        cmd = activity.commands[commandSlug]
+        return {name:cmd.name, slug:commandSlug, label:cmd.label}
+      })
+      res.json({commands: commands})
+    }else{
+      res.status(404).json({message: "Not Found"})
+    }
   }else{
     res.status(404).json({message: "Not Found"})
   }
@@ -384,12 +429,30 @@ app.get('/hubs/:hubSlug/devices/:deviceSlug/commands', function(req, res){
   }
 })
 
+app.get('/hubs/:hubSlug/activities/:activitySlug/commands', function(req, res){
+  hubSlug = req.params.hubSlug
+  activitySlug = req.params.activitySlug
+  activity = activityBySlugs(hubSlug, activitySlug)
+
+  if (activity) {
+    commands =  Object.keys(activity.commands).map(function(commandSlug){
+      cmd = activity.commands[commandSlug]
+      return {name:cmd.name, slug:commandSlug, label:cmd.label}
+    })
+    res.json({commands: commands})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
 app.get('/hubs/:hubSlug/status', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
   if (harmonyHubClient) {
-    res.json(harmonyHubStates[hubSlug])
+    var state = harmonyHubStates[hubSlug]
+    var current_activity = {id:state.current_activity.id, slug:state.current_activity.slug, label:state.current_activity.label}
+    res.json({off:state.off, current_activity:current_activity})
   }else{
     res.status(404).json({message: "Not Found"})
   }
@@ -432,11 +495,39 @@ app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
   }
 })
 
+app.post('/hubs/:hubSlug/commands/:commandSlug', function(req, res){
+  state = harmonyHubStates[req.params.hubSlug]
+  if (state && state.current_activity) {
+    command = activityCommandBySlugs(req.params.hubSlug, state.current_activity.slug, req.params.commandSlug);
+    if (command) {
+      sendAction(req.params.hubSlug, command.action, req.query.repeat)
+
+      res.json({message: "ok"})
+    }else{
+      res.status(404).json({message: "Not Found"})
+    }
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
 app.post('/hubs/:hubSlug/devices/:deviceSlug/commands/:commandSlug', function(req, res){
-  command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
+  command = deviceCommandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
 
   if (command) {
-    sendAction(req.params.hubSlug, command.action)
+    sendAction(req.params.hubSlug, command.action, req.query.repeat)
+
+    res.json({message: "ok"})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
+app.post('/hubs/:hubSlug/activities/:activitySlug/commands/:commandSlug', function(req, res){
+  command = activityCommandBySlugs(req.params.hubSlug, req.params.activitySlug, req.params.commandSlug)
+
+  if (command) {
+    sendAction(req.params.hubSlug, command.action, req.query.repeat)
 
     res.json({message: "ok"})
   }else{
@@ -451,10 +542,15 @@ app.get('/hubs_for_index', function(req, res){
   Object.keys(harmonyHubClients).forEach(function(hubSlug) {
     output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
+    output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/commands">/hubs/' + hubSlug + '/commands</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/devices">/hubs/' + hubSlug + '/devices</a></p>'
     cachedHarmonyDevices(hubSlug).forEach(function(device) {
       path = '/hubs/' + hubSlug + '/devices/' + device.slug + '/commands'
+      output += '<p><span class="method">GET</span> <a href="' + path + '">' + path + '</a></p>'
+    })
+    cachedHarmonyActivities(hubSlug).forEach(function(activity) {
+      path = '/hubs/' + hubSlug + '/activities/' + activity.slug + '/commands'
       output += '<p><span class="method">GET</span> <a href="' + path + '">' + path + '</a></p>'
     })
   });
