@@ -141,16 +141,30 @@ is `on` or `off`. There will a topic for every activity on your hub.
 
 ### Command Topics
 
-You can also command harmony-api to change activities by publishing topics.
-harmony-api listens to this topic and will change to the activity when it sees
+You can also command harmony-api to change activities, and issue device and acivity commands by publishing topics.
+harmony-api listens to these topics and will change to the activity, or issue the command when it sees
 it.
 
+#### Switching activities
 Just provide the slug of the hub and activity you want to switch to and `on` as
 the message. Any use of this topic with the message `off` will turn everything
 off.
 
 `harmony-api/hubs/family-room/activities/watch-tv/command` `on`  
 
+#### Device commands
+Just provide the slug of the hub and the device to control with the command you want to execute. 
+`harmony-api/hubs/family-room/devices/tv/command` `volume-down`
+
+To optionally repeat the command any number of times, provide an optional repeat integer.
+`harmony-api/hubs/family-room/devices/tv/command` `volume-down:5`
+
+#### Current activity commands
+Just provide the slug of the hub and the command you want to execute. 
+`harmony-api/hubs/family-room/current_activity/command` `volume-down`
+
+To optionally repeat the command any number of times, provide an optional repeat integer.
+`harmony-api/hubs/family-room/current_activity/command` `volume-down:5`
 
 ## HTTP API Docs
 
@@ -226,7 +240,9 @@ These are the endpoints you can hit to do things.
 
     GET /hubs => {"hubs": ["family-room", "bedroom"] }
     GET /hubs/:hub_slug/status => StatusResource
+    GET /hubs/:hub_slug/commands => {"commands": [CommandResource, CommandResource, ...]}
     GET /hubs/:hub_slug/activities => {"activities": [ActivityResource, ActivityResource, ...]}
+    GET /hubs/:hub_slug/activities/:activity_slug/commands => {"commands": [CommandResource, CommandResource, ...]}
     GET /hubs/:hub_slug/devices => {"devices": [DeviceResource, DeviceResource, ...]}
     GET /hubs/:hub_slug/devices/:device_slug/commands => {"commands": [CommandResource, CommandResource, ...]}
 
@@ -234,8 +250,11 @@ These are the endpoints you can hit to do things.
   Use these endpoints to control your devices through your Harmony Hub.
 
     PUT /hubs/:hub_slug/off => {message: "ok"}
+    POST /hubs/:hub_slug/commands/:command_slug => {message: "ok"}
+    POST /hubs/:hub_slug/commands/:command_slug?repeat=3 => {message: "ok"}
     POST /hubs/:hub_slug/activities/:activity_slug => {message: "ok"}
     POST /hubs/:hub_slug/devices/:device_slug/commands/:command_slug => {message: "ok"}
+    POST /hubs/:hub_slug/devices/:device_slug/commands/:command_slug?repeat=3 => {message: "ok"}
 
 ## Contributions
 

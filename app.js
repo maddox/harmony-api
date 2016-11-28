@@ -99,7 +99,9 @@ mqttClient.on('message', function (topic, message) {
   if (currentActivityCommandMatches) {
     var hubSlug = currentActivityCommandMatches[1]
     activitySlug = harmonyHubStates[hubSlug].current_activity.slug
-    var commandSlug = message.toString()
+    var messageComponents = message.toString().split(':')
+    var commandSlug = messageComponents[0]
+    var repeat = messageComponents[1]
 
     activity = activityBySlugs(hubSlug, activitySlug)
     if (!activity) { return }
@@ -107,7 +109,7 @@ mqttClient.on('message', function (topic, message) {
     command = activity.commands[commandSlug]
     if (!command) { return }
 
-    sendAction(hubSlug, command.action)
+    sendAction(hubSlug, command.action, repeat)
 
   } else if (activityCommandMatches) {
     var hubSlug = activityCommandMatches[1]
@@ -125,12 +127,14 @@ mqttClient.on('message', function (topic, message) {
   } else if (deviceCommandMatches) {
     var hubSlug = deviceCommandMatches[1]
     var deviceSlug = deviceCommandMatches[2]
-    var command = message.toString()
+    var messageComponents = message.toString().split(':')
+    var command = messageComponents[0]
+    var repeat = messageComponents[1]
 
     command = commandBySlugs(hubSlug, deviceSlug, command)
     if (!command) { return }
 
-    sendAction(hubSlug, command.action)
+    sendAction(hubSlug, command.action, repeat)
   }
 
 });
@@ -364,15 +368,18 @@ function startActivity(hubSlug, activityId){
   })
 }
 
-function sendAction(hubSlug, action){
+function sendAction(hubSlug, action, repeat){
+  repeat = Number.parseInt(repeat) || 1;
   harmonyHubClient = harmonyHubClients[hubSlug]
   if (!harmonyHubClient) { return }
 
   var pressAction = 'action=' + action + ':status=press:timestamp=0';
   var releaseAction =  'action=' + action + ':status=release:timestamp=55';
-  harmonyHubClient.send('holdAction', pressAction).then(function (){
-     harmonyHubClient.send('holdAction', releaseAction)
-  })
+  for (var i = 0; i < repeat; i++) {
+    harmonyHubClient.send('holdAction', pressAction).then(function (){
+       harmonyHubClient.send('holdAction', releaseAction)
+    })
+  }
 }
 
 function publish(topic, message, options){
@@ -472,7 +479,7 @@ app.post('/hubs/:hubSlug/commands/:commandSlug', function(req, res){
   activity = activityBySlugs(hubSlug, activitySlug)
   if (activity && commandSlug in activity.commands)
   {
-    sendAction(hubSlug, activity.commands[commandSlug].action)
+    sendAction(hubSlug, activity.commands[commandSlug].action, req.query.repeat)
 
     res.json({message: "ok"})
   }else{
@@ -521,7 +528,7 @@ app.post('/hubs/:hubSlug/devices/:deviceSlug/commands/:commandSlug', function(re
   command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
 
   if (command) {
-    sendAction(req.params.hubSlug, command.action)
+    sendAction(req.params.hubSlug, command.action, req.query.repeat)
 
     res.json({message: "ok"})
   }else{
