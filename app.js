@@ -85,15 +85,31 @@ discover.start()
 mqttClient.on('connect', function () {
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/activities/+/command')
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/devices/+/command')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/current_activity/command')
 });
 
 mqttClient.on('message', function (topic, message) {
   var activityCommandPattern = new RegExp(/hubs\/(.*)\/activities\/(.*)\/command/);
   var deviceCommandPattern = new RegExp(/hubs\/(.*)\/devices\/(.*)\/command/);
+  var currentActivityCommandPattern = new RegExp(/hubs\/(.*)\/current_activity\/command/);
   var activityCommandMatches = topic.match(activityCommandPattern);
   var deviceCommandMatches = topic.match(deviceCommandPattern);
+  var currentActivityCommandMatches = topic.match(currentActivityCommandPattern);
 
-  if (activityCommandMatches) {
+  if (currentActivityCommandMatches) {
+    var hubSlug = currentActivityCommandMatches[1]
+    activitySlug = harmonyHubStates[hubSlug].current_activity.slug
+    var commandSlug = message.toString()
+
+    activity = activityBySlugs(hubSlug, activitySlug)
+    if (!activity) { return }
+
+    command = activity.commands[commandSlug]
+    if (!command) { return }
+
+    sendAction(hubSlug, command.action)
+
+  } else if (activityCommandMatches) {
     var hubSlug = activityCommandMatches[1]
     var activitySlug = activityCommandMatches[2]
     var state = message.toString()
@@ -152,8 +168,12 @@ function updateActivities(hubSlug){
       foundActivities = {}
       activities.some(function(activity) {
         foundActivities[activity.id] = {id: activity.id, slug: parameterize(activity.label), label:activity.label, isAVActivity: activity.isAVActivity}
+        Object.defineProperty(foundActivities[activity.id], "commands", {
+          enumerable: false,
+          writeable: true,
+          value: getCommandsFromControlGroup(activity.controlGroup)
+        });
       })
-
       harmonyActivitiesCache[hubSlug] = foundActivities
     })
   } catch(err) {
@@ -176,11 +196,14 @@ function updateState(hubSlug){
       data = {off: true}
 
       activity = harmonyActivitiesCache[hubSlug][activityId]
+      commands = Object.keys(activity.commands).map(function(commandSlug){
+        return activity.commands[commandSlug]
+      })
 
       if (activityId != -1 && activity) {
-        data = {off: false, current_activity: activity}
+        data = {off: false, current_activity: activity, activity_commands: commands}
       }else{
-        data = {off: true, current_activity: activity}
+        data = {off: true, current_activity: activity, activity_commands: commands}
       }
 
       // cache state for later
@@ -218,13 +241,13 @@ function updateDevices(hubSlug){
     harmonyHubClient.getAvailableCommands().then(function(commands) {
       foundDevices = {}
       commands.device.some(function(device) {
-        deviceCommands = {}
-        device.controlGroup.some(function(group) {
-          group.function.some(function(func) {
-            deviceCommands[parameterize(func.label)] = {name: func.name, label: func.label, action:func.action.replace(/\:/g, '::')}
-          })
-        })
-        foundDevices[device.id] = {id: device.id, slug: parameterize(device.label), label:device.label, commands:deviceCommands}
+        deviceCommands = getCommandsFromControlGroup(device.controlGroup)
+        foundDevices[device.id] = {id: device.id, slug: parameterize(device.label), label:device.label}
+        Object.defineProperty(foundDevices[device.id], "commands", {
+          enumerable: false,
+          writeable: true,
+          value: deviceCommands
+        });
       })
 
       harmonyDevicesCache[hubSlug] = foundDevices
@@ -233,6 +256,22 @@ function updateDevices(hubSlug){
   } catch(err) {
     console.log("Devices ERROR: " + err.message);
   }
+}
+
+function getCommandsFromControlGroup(controlGroup){
+  deviceCommands = {}
+  controlGroup.some(function(group) {
+    group.function.some(function(func) {
+      slug = parameterize(func.label)
+      deviceCommands[slug] = {name: func.name, slug: slug, label: func.label}
+      Object.defineProperty(deviceCommands[slug], "action", {
+        enumerable: false,
+        writeable: true,
+        value: func.action.replace(/\:/g, '::')
+      });
+    })
+  })
+  return deviceCommands
 }
 
 function cachedHarmonyActivities(hubSlug){
@@ -354,15 +393,27 @@ app.get('/hubs/:hubSlug/activities', function(req, res){
   }
 })
 
+app.get('/hubs/:hubSlug/activities/:activitySlug/commands', function(req, res){
+  hubSlug = req.params.hubSlug
+  activitySlug = req.params.activitySlug
+  activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
+
+  if (activity) {
+    commands = Object.keys(activity.commands).map(function(commandSlug){
+      return activity.commands[commandSlug]
+    })
+    res.json({commands: commands})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
 app.get('/hubs/:hubSlug/devices', function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
   if (harmonyHubClient) {
-    var devices = cachedHarmonyDevices(hubSlug).map(function(device) {
-      return {id:device.id, slug:device.slug, label:device.label}
-    })
-    res.json({devices: devices})
+    res.json({devices: cachedHarmonyDevices(hubSlug)})
   }else{
     res.status(404).json({message: "Not Found"})
   }
@@ -374,9 +425,8 @@ app.get('/hubs/:hubSlug/devices/:deviceSlug/commands', function(req, res){
   device = deviceBySlugs(hubSlug, deviceSlug)
 
   if (device) {
-    commands =  Object.keys(device.commands).map(function(commandSlug){
-      cmd = device.commands[commandSlug]
-      return {name:cmd.name, slug:commandSlug, label:cmd.label}
+    commands = Object.keys(device.commands).map(function(commandSlug){
+      return device.commands[commandSlug]
     })
     res.json({commands: commands})
   }else{
@@ -390,6 +440,22 @@ app.get('/hubs/:hubSlug/status', function(req, res){
 
   if (harmonyHubClient) {
     res.json(harmonyHubStates[hubSlug])
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
+app.post('/hubs/:hubSlug/current_activity/:commandSlug', function(req, res){
+  hubSlug = req.params.hubSlug
+  activitySlug = harmonyHubStates[hubSlug].current_activity.slug
+  var commandSlug = req.params.commandSlug
+
+  activity = activityBySlugs(hubSlug, activitySlug)
+  if (activity && commandSlug in activity.commands)
+  {
+    sendAction(hubSlug, activity.commands[commandSlug].action)
+
+    res.json({message: "ok"})
   }else{
     res.status(404).json({message: "Not Found"})
   }
@@ -452,6 +518,10 @@ app.get('/hubs_for_index', function(req, res){
     output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
+    cachedHarmonyActivities(hubSlug).forEach(function(activity) {
+      path = '/hubs/' + hubSlug + '/activities/' + activity.slug + '/commands'
+      output += '<p><span class="method">GET</span> <a href="' + path + '">' + path + '</a></p>'
+    })
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/devices">/hubs/' + hubSlug + '/devices</a></p>'
     cachedHarmonyDevices(hubSlug).forEach(function(device) {
       path = '/hubs/' + hubSlug + '/devices/' + device.slug + '/commands'
