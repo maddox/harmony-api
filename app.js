@@ -303,6 +303,16 @@ function activityBySlugs(hubSlug, activitySlug){
   return activity
 }
 
+function activityCommandsBySlugs(hubSlug, activitySlug){
+  activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
+
+  if (activity) {
+    return Object.keys(activity.commands).map(function(commandSlug){
+      return activity.commands[commandSlug]
+    })
+  }
+}
+
 function cachedHarmonyDevices(hubSlug){
   devices = harmonyDevicesCache[hubSlug]
   if (!devices) { return [] }
@@ -396,12 +406,9 @@ app.get('/hubs/:hubSlug/activities', function(req, res){
 app.get('/hubs/:hubSlug/activities/:activitySlug/commands', function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = req.params.activitySlug
-  activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
+  commands = activityCommandsBySlugs(req.params.hubSlug, req.params.activitySlug);
 
-  if (activity) {
-    commands = Object.keys(activity.commands).map(function(commandSlug){
-      return activity.commands[commandSlug]
-    })
+  if (commands) {
     res.json({commands: commands})
   }else{
     res.status(404).json({message: "Not Found"})
@@ -449,11 +456,8 @@ app.get('/hubs/:hubSlug/commands', function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = harmonyHubStates[hubSlug].current_activity.slug
 
-  activity = activityBySlugs(hubSlug, activitySlug)
-  if (activity) {
-    commands = Object.keys(activity.commands).map(function(commandSlug){
-      return activity.commands[commandSlug]
-    })
+  commands = activityCommandsBySlugs(hubSlug, activitySlug);
+  if (commands) {
     res.json({commands: commands})
   }else{
     res.status(404).json({message: "Not Found"})
