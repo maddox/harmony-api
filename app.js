@@ -85,13 +85,13 @@ discover.start()
 mqttClient.on('connect', function () {
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/activities/+/command')
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/devices/+/command')
-  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/current_activity/command')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/command')
 });
 
 mqttClient.on('message', function (topic, message) {
   var activityCommandPattern = new RegExp(/hubs\/(.*)\/activities\/(.*)\/command/);
   var deviceCommandPattern = new RegExp(/hubs\/(.*)\/devices\/(.*)\/command/);
-  var currentActivityCommandPattern = new RegExp(/hubs\/(.*)\/current_activity\/command/);
+  var currentActivityCommandPattern = new RegExp(/hubs\/(.*)\/command/);
   var activityCommandMatches = topic.match(activityCommandPattern);
   var deviceCommandMatches = topic.match(deviceCommandPattern);
   var currentActivityCommandMatches = topic.match(currentActivityCommandPattern);
@@ -445,7 +445,22 @@ app.get('/hubs/:hubSlug/status', function(req, res){
   }
 })
 
-app.post('/hubs/:hubSlug/current_activity/:commandSlug', function(req, res){
+app.get('/hubs/:hubSlug/commands', function(req, res){
+  hubSlug = req.params.hubSlug
+  activitySlug = harmonyHubStates[hubSlug].current_activity.slug
+
+  activity = activityBySlugs(hubSlug, activitySlug)
+  if (activity) {
+    commands = Object.keys(activity.commands).map(function(commandSlug){
+      return activity.commands[commandSlug]
+    })
+    res.json({commands: commands})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
+app.post('/hubs/:hubSlug/commands/:commandSlug', function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = harmonyHubStates[hubSlug].current_activity.slug
   var commandSlug = req.params.commandSlug
