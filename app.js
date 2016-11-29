@@ -85,13 +85,13 @@ discover.start()
 mqttClient.on('connect', function () {
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/activities/+/command')
   mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/devices/+/command')
-  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/current_activity/command')
+  mqttClient.subscribe(TOPIC_NAMESPACE + '/hubs/+/command')
 });
 
 mqttClient.on('message', function (topic, message) {
   var activityCommandPattern = new RegExp(/hubs\/(.*)\/activities\/(.*)\/command/);
   var deviceCommandPattern = new RegExp(/hubs\/(.*)\/devices\/(.*)\/command/);
-  var currentActivityCommandPattern = new RegExp(/hubs\/(.*)\/current_activity\/command/);
+  var currentActivityCommandPattern = new RegExp(/hubs\/(.*)\/command/);
   var activityCommandMatches = topic.match(activityCommandPattern);
   var deviceCommandMatches = topic.match(deviceCommandPattern);
   var currentActivityCommandMatches = topic.match(currentActivityCommandPattern);
@@ -303,6 +303,16 @@ function activityBySlugs(hubSlug, activitySlug){
   return activity
 }
 
+function activityCommandsBySlugs(hubSlug, activitySlug){
+  activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
+
+  if (activity) {
+    return Object.keys(activity.commands).map(function(commandSlug){
+      return activity.commands[commandSlug]
+    })
+  }
+}
+
 function cachedHarmonyDevices(hubSlug){
   devices = harmonyDevicesCache[hubSlug]
   if (!devices) { return [] }
@@ -396,12 +406,9 @@ app.get('/hubs/:hubSlug/activities', function(req, res){
 app.get('/hubs/:hubSlug/activities/:activitySlug/commands', function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = req.params.activitySlug
-  activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
+  commands = activityCommandsBySlugs(req.params.hubSlug, req.params.activitySlug);
 
-  if (activity) {
-    commands = Object.keys(activity.commands).map(function(commandSlug){
-      return activity.commands[commandSlug]
-    })
+  if (commands) {
     res.json({commands: commands})
   }else{
     res.status(404).json({message: "Not Found"})
@@ -445,7 +452,19 @@ app.get('/hubs/:hubSlug/status', function(req, res){
   }
 })
 
-app.post('/hubs/:hubSlug/current_activity/:commandSlug', function(req, res){
+app.get('/hubs/:hubSlug/commands', function(req, res){
+  hubSlug = req.params.hubSlug
+  activitySlug = harmonyHubStates[hubSlug].current_activity.slug
+
+  commands = activityCommandsBySlugs(hubSlug, activitySlug);
+  if (commands) {
+    res.json({commands: commands})
+  }else{
+    res.status(404).json({message: "Not Found"})
+  }
+})
+
+app.post('/hubs/:hubSlug/commands/:commandSlug', function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = harmonyHubStates[hubSlug].current_activity.slug
   var commandSlug = req.params.commandSlug
@@ -518,6 +537,7 @@ app.get('/hubs_for_index', function(req, res){
     output += '<h3 class="hub-name">' + hubSlug.replace('-', ' ') + '</h3>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/status">/hubs/' + hubSlug + '/status</a></p>'
     output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/activities">/hubs/' + hubSlug + '/activities</a></p>'
+    output += '<p><span class="method">GET</span> <a href="/hubs/' + hubSlug + '/commands">/hubs/' + hubSlug + '/commands</a></p>'
     cachedHarmonyActivities(hubSlug).forEach(function(activity) {
       path = '/hubs/' + hubSlug + '/activities/' + activity.slug + '/commands'
       output += '<p><span class="method">GET</span> <a href="' + path + '">' + path + '</a></p>'
