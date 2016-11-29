@@ -161,10 +161,10 @@ To optionally repeat the command any number of times, provide an optional repeat
 
 #### Current activity commands
 Just provide the slug of the hub and the command you want to execute. 
-`harmony-api/hubs/family-room/current_activity/command` `volume-down`
+`harmony-api/hubs/family-room/command` `volume-down`
 
 To optionally repeat the command any number of times, provide an optional repeat integer.
-`harmony-api/hubs/family-room/current_activity/command` `volume-down:5`
+`harmony-api/hubs/family-room/command` `volume-down:5`
 
 ## HTTP API Docs
 
