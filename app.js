@@ -308,7 +308,7 @@ function activityBySlugs(hubSlug, activitySlug){
 }
 
 function activityCommandsBySlugs(hubSlug, activitySlug){
-  activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
+  activity = activityBySlugs(hubSlug, activitySlug)
 
   if (activity) {
     return Object.keys(activity.commands).map(function(commandSlug){
