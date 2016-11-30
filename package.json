@@ -1,6 +1,6 @@
 {
   "name": "harmony-api",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A simple server providing a RESTful and MQTT based service for controlling and monitoring Harmony Hubs.",
   "scripts": {
     "start": "node app.js"
