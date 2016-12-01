@@ -98,12 +98,14 @@ mqttClient.on('message', function (topic, message) {
 
   if (currentActivityCommandMatches) {
     var hubSlug = currentActivityCommandMatches[1]
-    activitySlug = harmonyHubStates[hubSlug].current_activity.slug
     var messageComponents = message.toString().split(':')
     var commandSlug = messageComponents[0]
     var repeat = messageComponents[1]
 
-    activity = activityBySlugs(hubSlug, activitySlug)
+    hubState = harmonyHubStates[hubSlug]
+    if (!hubState) { return }
+
+    activity = activityBySlugs(hubSlug, hubState.current_activity.slug)
     if (!activity) { return }
 
     command = activity.commands[commandSlug]
