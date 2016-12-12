@@ -67,6 +67,7 @@ discover.on('online', function(hubInfo) {
 discover.on('offline', function(hubInfo) {
   // Triggered when a hub disappeared
   console.log('Hub lost: ' + hubInfo.friendlyName + ' at ' + hubInfo.ip + '.')
+  if (!hubInfo.friendlyName) { return }
   hubSlug = parameterize(hubInfo.friendlyName)
 
   clearInterval(harmonyStateUpdateTimers[hubSlug])
