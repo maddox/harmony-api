@@ -97,24 +97,7 @@ mqttClient.on('message', function (topic, message) {
   var deviceCommandMatches = topic.match(deviceCommandPattern);
   var currentActivityCommandMatches = topic.match(currentActivityCommandPattern);
 
-  if (currentActivityCommandMatches) {
-    var hubSlug = currentActivityCommandMatches[1]
-    var messageComponents = message.toString().split(':')
-    var commandSlug = messageComponents[0]
-    var repeat = messageComponents[1]
-
-    hubState = harmonyHubStates[hubSlug]
-    if (!hubState) { return }
-
-    activity = activityBySlugs(hubSlug, hubState.current_activity.slug)
-    if (!activity) { return }
-
-    command = activity.commands[commandSlug]
-    if (!command) { return }
-
-    sendAction(hubSlug, command.action, repeat)
-
-  } else if (activityCommandMatches) {
+  if (activityCommandMatches) {
     var hubSlug = activityCommandMatches[1]
     var activitySlug = activityCommandMatches[2]
     var state = message.toString()
@@ -138,8 +121,23 @@ mqttClient.on('message', function (topic, message) {
     if (!command) { return }
 
     sendAction(hubSlug, command.action, repeat)
-  }
+  } else if (currentActivityCommandMatches) {
+    var hubSlug = currentActivityCommandMatches[1]
+    var messageComponents = message.toString().split(':')
+    var commandSlug = messageComponents[0]
+    var repeat = messageComponents[1]
 
+    hubState = harmonyHubStates[hubSlug]
+    if (!hubState) { return }
+
+    activity = activityBySlugs(hubSlug, hubState.current_activity.slug)
+    if (!activity) { return }
+
+    command = activity.commands[commandSlug]
+    if (!command) { return }
+
+    sendAction(hubSlug, command.action, repeat)
+  }
 });
 
 function startProcessing(hubSlug, harmonyClient){
