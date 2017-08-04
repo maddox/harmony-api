@@ -31,6 +31,9 @@ var mqttClient = config.hasOwnProperty("mqtt_options") ?
     mqtt.connect(config.mqtt_host);
 var TOPIC_NAMESPACE = config.topic_namespace || "harmony-api";
 
+var enableHTTPserver = config.hasOwnProperty("enableHTTPserver") ?
+    config.enableHTTPserver : true;
+
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')));
@@ -560,4 +563,6 @@ app.get('/hubs_for_index', function(req, res){
   res.send(output)
 })
 
-app.listen(process.env.PORT || 8282)
+if (enableHTTPserver) {
+    app.listen(process.env.PORT || 8282)
+}
