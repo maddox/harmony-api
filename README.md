@@ -53,6 +53,13 @@ allowed host and options values.
 ## Running It
 Get up and running immediately with `script/server`.
 
+#### Note: 
+On some distros, you might get an error when running it:
+`/usr/bin/node: No such file or directory`
+
+That can probably be fixed by creating a symlink:
+``sudo ln -s `which nodejs` /usr/bin/node``
+
 Harmony API will run on port `8282` by default. Use the `PORT` environment
 variable to use your own port.
 
