@@ -1,0 +1,18 @@
+[Unit]
+Description=Harmony API
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+User=harmony
+ExecStart=/harmony-api/script/server
+Restart=on-failure
+RestartSec=10
+KillMode=process
+PIDFile=/var/run/harmony-api.pid
+StandardOutput=inherit 
+StandardError=inherit 
+SyslogIdentifier=harmony-api
+
+[Install]
+WantedBy=multi-user.target

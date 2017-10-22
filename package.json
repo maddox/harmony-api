@@ -15,12 +15,12 @@
     "url": "https://github.com/maddox/harmony-api/issues"
   },
   "dependencies": {
-    "express": "^4.12.4",
-    "morgan": "^1.6.1",
     "body-parser": "^1.12.4",
-    "harmonyhubjs-client": "maddox/harmonyhubjs-client#for-harmony-api",
+    "express": "^4.12.4",
+    "harmonyhubjs-client": "github:maddox/harmonyhubjs-client#for-harmony-api",
     "harmonyhubjs-discover": "^1.0.2",
-    "parameterize": "^0.0.7",
-    "mqtt": "^1.4.1"
+    "morgan": "^1.6.1",
+    "mqtt": "^1.4.1",
+    "parameterize": "^0.0.7"
   }
 }
