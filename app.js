@@ -116,14 +116,17 @@ mqttClient.on('message', function (topic, message) {
   } else if (deviceCommandMatches) {
     var hubSlug = deviceCommandMatches[1]
     var deviceSlug = deviceCommandMatches[2]
-    var messageComponents = message.toString().split(':')
-    var command = messageComponents[0]
-    var repeat = messageComponents[1]
+    var messages = message.toString().split(' ');
+    for (var index = 0; index < messages.length; index++) {
+      var messageComponents = messages[index].toString().split(':')
+      var command = messageComponents[0]
+      var repeat = messageComponents[1]
 
-    command = commandBySlugs(hubSlug, deviceSlug, command)
-    if (!command) { return }
+      command = commandBySlugs(hubSlug, deviceSlug, command)
+      if (!command) { return }
 
-    sendAction(hubSlug, command.action, repeat)
+      sendAction(hubSlug, command.action, repeat)
+    }
   } else if (currentActivityCommandMatches) {
     var hubSlug = currentActivityCommandMatches[1]
     var messageComponents = message.toString().split(':')
