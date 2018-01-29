@@ -1,0 +1,12 @@
+[Unit]
+Description=A simple server allowing you to query/control multiple local Harmony Home Hubs over HTTP or MQTT
+After=network.target
+
+[Service]
+ExecStart=/var/lib/harmony-api/script/server
+SyslogIdentifier=harmony-api
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
