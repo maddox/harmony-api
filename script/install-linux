@@ -1,0 +1,15 @@
+#!/bin/bash -x
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+INSTALL_PATH=/var/lib/harmony-api
+CONF_PATH=/etc/harmony-api
+
+echo "Installing harmony-api for Linux..."
+mkdir -p ${INSTALL_PATH}
+cp -R * ${INSTALL_PATH}
+ln -sf  ${INSTALL_PATH}/config ${CONF_PATH}
+ln -sf ${INSTALL_PATH}/config/harmony-api-server.service /etc/systemd/system/
+systemctl enable harmony-api-server.service

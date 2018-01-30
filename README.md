@@ -65,8 +65,7 @@ variable to use your own port.
 
 ### Forever
 harmony-api has support for [Forever](https://github.com/foreverjs/forever). It uses
-`launchd` on OS X to kick it off so that it starts on boot. There is no `init.d`
-or other Linux support of this type. Pull requests would be welcome for this though.
+`launchd` on OS X to kick it off so that it starts on boot.
 
 ### Development
 You can simply run it by calling `script/server`. This will run it in development
@@ -75,6 +74,10 @@ mode with logging to standard out.
 ### Install as Service on OS X
 
     script/install
+
+### Install as systemd unit on Linux
+
+    sudo script/install-linux
 
 ### Docker
 Installation with Docker is straightforward. Adjust the following command so that
