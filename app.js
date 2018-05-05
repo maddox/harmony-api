@@ -120,10 +120,12 @@ mqttClient.on('message', function (topic, message) {
     var command = messageComponents[0]
     var repeat = messageComponents[1]
 
-    command = commandBySlugs(hubSlug, deviceSlug, command)
-    if (!command) { return }
+    commands = commandBySlugs(hubSlug, deviceSlug, command)
+    if (commands.length == 0) { return }
 
-    sendAction(hubSlug, command.action, repeat)
+    for (var i = 0; i < commands.length; i += 1) {
+      sendAction(hubSlug, commands[i].action, repeat)
+    }
   } else if (currentActivityCommandMatches) {
     var hubSlug = currentActivityCommandMatches[1]
     var messageComponents = message.toString().split(':')
@@ -342,16 +344,30 @@ function deviceBySlugs(hubSlug, deviceSlug){
   return device
 }
 
+// always returns an Array
 function commandBySlugs(hubSlug, deviceSlug, commandSlug){
-  var command
+  var commands = []
+  var raw_commands = []
   device = deviceBySlugs(hubSlug, deviceSlug)
   if (device){
-    if (commandSlug in device.commands){
-      command = device.commands[commandSlug]
+    if (+commandSlug === Number.parseInt(commandSlug, 10)) {
+      // channel number was sent
+      // split digits into separate commands
+      for (var i = 0; i < commandSlug.length; i += 1) {
+        raw_commands.push(commandSlug.charAt(i))
+      }
+    } else if (commandSlug) {
+      raw_commands.push(commandSlug)
+    }
+
+    for (var i = 0; i < raw_commands.length; i += 1) {
+      if (raw_commands[i] in device.commands){
+        commands.push(device.commands[raw_commands[i]])
+      }
     }
   }
 
-  return command
+  return commands
 }
 
 function off(hubSlug){
@@ -529,11 +545,12 @@ app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
 })
 
 app.post('/hubs/:hubSlug/devices/:deviceSlug/commands/:commandSlug', function(req, res){
-  command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
+  commands = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
 
-  if (command) {
-    sendAction(req.params.hubSlug, command.action, req.query.repeat)
-
+  if (commands.length > 0) {
+    for (var i = 0; i < commands.length; i += 1) {
+      sendAction(req.params.hubSlug, commands[i].action, req.query.repeat)
+    }
     res.json({message: "ok"})
   }else{
     res.status(404).json({message: "Not Found"})
