@@ -1,11 +1,11 @@
-var fs = require('fs')
-var path = require('path')
-var util = require('util')
-var mqtt = require('mqtt');
-var express = require('express')
-var morgan = require('morgan')
-var bodyParser = require('body-parser')
-var parameterize = require('parameterize')
+const fs = require('fs')
+const path = require('path')
+const util = require('util')
+const mqtt = require('mqtt');
+const express = require('express')
+const morgan = require('morgan')
+const bodyParser = require('body-parser')
+const parameterize = require('parameterize')
 
 var config_dir = process.env.CONFIG_DIR || './config'
 var config = require(config_dir + '/config.json');
@@ -31,9 +31,6 @@ var mqttClient = config.hasOwnProperty("mqtt_options") ?
     mqtt.connect(config.mqtt_host);
 var TOPIC_NAMESPACE = config.topic_namespace || "harmony-api";
 
-var enableHTTPserver = config.hasOwnProperty("enableHTTPserver") ?
-    config.enableHTTPserver : true;
-
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')));
@@ -51,7 +48,6 @@ var hasHarmonyHubClient = function(req, res, next) {
   }
 }
 app.use(hasHarmonyHubClient)
-
 
 var discover = new harmonyHubDiscover(61991)
 
@@ -563,6 +559,24 @@ app.get('/hubs_for_index', function(req, res){
   res.send(output)
 })
 
-if (enableHTTPserver) {
-    app.listen(process.env.PORT || 8282)
+
+if (config.hasOwnProperty("http_server")) {
+  type = config.http_server.type || "http"
+  port = process.env.PORT || config.http_server.port || 8282
+
+  switch (type) {
+    case "http":
+      app.listen(port)
+      console.log('HTTP server running on port: ' + port)
+      break;
+    case "https":
+      const https = require('https');
+      const options = {
+        cert: fs.readFileSync(config.http_server.cert),
+        key: fs.readFileSync(config.http_server.key)
+      }
+      https.createServer(options, app).listen(port);
+      console.log('HTTPS server running on port: ' + port)
+      break;
+  }
 }
