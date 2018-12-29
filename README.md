@@ -1,10 +1,10 @@
-# Discontinued
+# Discontinued. Maybe?
 
-⚠️⚠️⚠️ Harmony API has been discontinued, effective immediatly. ⚠️⚠️⚠️
+⚠️⚠️⚠️ Harmony API has been MAYBE discontinued. ⚠️⚠️⚠️
 
-The open local API in the Harmony Hub that Harmony API relied on has been closed in the most current firmware. Logitech [has made it public](https://community.logitech.com/s/question/0D55A00008D4bZ4SAJ/harmony-hub-firmware-update-fixes-vulnerabilities) that they do not intend to open it back up. This effectively renders Harmony API useless.
+~~The open local API in the Harmony Hub that Harmony API relied on has been closed in the most current firmware. Logitech [has made it public](https://community.logitech.com/s/question/0D55A00008D4bZ4SAJ/harmony-hub-firmware-update-fixes-vulnerabilities) that they do not intend to open it back up. This effectively renders Harmony API useless.~~
 
-While there is another API available (websockets), I do not have any intention of porting Harmony API to use it.
+Harmony has said that they will be bringing back the local API. When that happens in January, I'll look to see how much work it is to incorporate the changes and maybe bring the project back.
 
 ## What should I use instead?
 
