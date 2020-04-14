@@ -1,29 +1,3 @@
-# Discontinued. Maybe?
-
-⚠️⚠️⚠️ Harmony API has been MAYBE discontinued. ⚠️⚠️⚠️
-
-~~The open local API in the Harmony Hub that Harmony API relied on has been closed in the most current firmware. Logitech [has made it public](https://community.logitech.com/s/question/0D55A00008D4bZ4SAJ/harmony-hub-firmware-update-fixes-vulnerabilities) that they do not intend to open it back up. This effectively renders Harmony API useless.~~
-
-Harmony has said that they will be bringing back the local API. When that happens in January, I'll look to see how much work it is to incorporate the changes and maybe bring the project back.
-
-## What should I use instead?
-
-Here are some options moving forward:
-
-### Downgrade and Block Internet from your Hub
-
-Home Assistant has [provided some instructions](https://www.home-assistant.io/blog/2018/12/17/logitech-harmony-removes-local-api/#reverting-the-software-update) for downgrading your Hub back to a firmware version that supports the local API. You can use this and continue using Harmony API.
-
-### Home Assistant
-If you use Home Assistant, please upgrade to at least [0.84.4](https://www.home-assistant.io/blog/2018/12/12/release-84/#release-0844---december-19) and use their Harmony component. They have ported their Harmony component to utilize the websocket API.
-
-If you don't use Home Assistant, I'd highly suggest using it.
-
-
-
-
-
-
 # Harmony API!!
 
 Harmony API is a simple server allowing you to query/control multiple local [Harmony
