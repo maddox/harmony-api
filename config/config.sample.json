@@ -1,5 +1,6 @@
 {
   "enableHTTPserver": true,
+  "authentication_code": "asdf1234",
   "mqtt_host": "mqtt://127.0.0.1",
   "topic_namespace": "harmony-api",
   "mqtt_options": {

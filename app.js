@@ -42,6 +42,22 @@ var logFormat = "'[:date[iso]] - :remote-addr - :method :url :status :response-t
 app.use(morgan(logFormat))
 
 // Middleware
+//Perform request authentication if configured.
+var headerAuthentication = function(req, res, next) {
+
+  //Move on if header-auth is not specified in the config.
+  if (! config.hasOwnProperty("authentication_code") ) {
+    next();
+  } else if (! req.headers.auth_code ) {
+    return res.status(500).json({ message: "Header authentication configured but no code supplied in request." });
+  } else if ( req.headers.auth_code != config.authentication_code) {
+    return res.status(500).json({ message: "Header authentication failed." });
+  }else{
+    next();
+  }
+}
+app.use(headerAuthentication)
+
 // Check to make sure we have a harmonyHubClient to connect to
 var hasHarmonyHubClient = function(req, res, next) {
   if (Object.keys(harmonyHubClients).length > 0) {
@@ -51,7 +67,6 @@ var hasHarmonyHubClient = function(req, res, next) {
   }
 }
 app.use(hasHarmonyHubClient)
-
 
 var discover = new harmonyHubDiscover(61991)
 

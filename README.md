@@ -50,6 +50,18 @@ broker's host to connect to it.
 `mqtt_options` is optional, see the [mqtt](https://github.com/mqttjs/MQTT.js#connect) project for
 allowed host and options values.
 
+### Authorization
+
+The optional `authentication_code` configuration element can be used to require the presence of a HTTP header named "auth_code" with a matching value.
+
+```json
+{
+  "authentication_code": "asdf1234"
+}
+```
+
+The header could be added via `curl`: `curl -H "auth_code:asdf1234" localhost:8282:/hubs`, for example.
+
 ## Running It
 Get up and running immediately with `script/server`.
 
